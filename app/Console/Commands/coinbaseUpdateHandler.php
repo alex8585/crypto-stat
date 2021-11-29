@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use MockingMagician\CoinbaseProSdk\CoinbaseFacade;
 use MockingMagician\CoinbaseProSdk\Functional\Websocket\WebsocketRunner;
 use MockingMagician\CoinbaseProSdk\Functional\Websocket\Message\ErrorMessage;
+use MockingMagician\CoinbaseProSdk\Functional\Websocket\Message\TickerMessage;
 use MockingMagician\CoinbaseProSdk\Functional\Websocket\Message\L2UpdateMessage;
 use MockingMagician\CoinbaseProSdk\Contracts\Websocket\SubscriberAuthenticationAwareInterface;
 
@@ -63,13 +64,13 @@ class coinbaseUpdateHandler extends Command
             $this->tickersArray[$symbolStr] = $t;
         }
 
-        dump($this->tickersArray);
+        //dump($this->tickersArray);
         //dd('1');
 
         $websocket = CoinbaseFacade::createUnauthenticatedWebsocket();
 
         $subscriber = $websocket->newSubscriber();
-        $subscriber->activateChannelLevel2(true, $this->symbolsStrings);
+        $subscriber->activateChannelTicker(true, $this->symbolsStrings);
 
         $websocket->run($subscriber, function ($runner) {
             while ($runner->isConnected()) {
@@ -79,30 +80,43 @@ class coinbaseUpdateHandler extends Command
                     // or break or what you want
                 }
 
-                if ($message instanceof L2UpdateMessage) {
+                if ($message instanceof TickerMessage) {
                     $productId = $message->getProductId();
-                    $changes = $message->getChanges();
-
-                    foreach ($changes as $change) {
-                        $side = $change->getSide();
-                        if ($side == 'sell') {
-                            $price = $change->getPrice();
-                            //if ($productId == 'ETH-USD') {
-                            $ticker = $this->tickersArray[$productId];
-                            if ($price > $ticker->max_last) {
-                                dump($price);
-                                dump($ticker->max_last);
-                                $ticker->max_last = $price;
-                                $ticker->max_cnt = $ticker->max_cnt + 1;
-                                $ticker->save();
-                                $this->tickersArray[$productId] = $ticker;
-                                dump($productId);
-                                dump($ticker->max_cnt);
-                            }
-
-                            // }
-                        }
+                    $price = $message->getPrice();
+                    $ticker = $this->tickersArray[$productId];
+                    if ($price > $ticker->max_last) {
+                        dump($productId);
+                        dump($ticker->max_last);
+                        dump($price);
+                        $ticker->max_last = $price;
+                        $ticker->max_cnt = $ticker->max_cnt + 1;
+                        $ticker->save();
+                        $this->tickersArray[$productId] = $ticker;
+                        // dump($ticker->max_cnt);
                     }
+
+
+                    // foreach ($changes as $change) {
+                    //     $side = $change->getSide();
+                    //     if ($side == 'sell') {
+                    //         $price = $change->getPrice();
+                    //         //if ($productId == 'ETH-USD') {
+                    //         $ticker = $this->tickersArray[$productId];
+
+                    //         //dump($price);
+                    //         if ($price > $ticker->max_last) {
+                    //             dump($productId);
+                    //             dump($ticker->max_last);
+                    //             dump($price);
+                    //             $ticker->max_last = $price;
+                    //             $ticker->max_cnt = $ticker->max_cnt + 1;
+                    //             $ticker->save();
+                    //             $this->tickersArray[$productId] = $ticker;
+                    //             // dump($ticker->max_cnt);
+                    //         }
+                    //         //}
+                    //     }
+                    // }
 
                     continue;
                 }
