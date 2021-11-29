@@ -6,6 +6,7 @@ use App\Models\Symbol;
 use App\Models\Ticker;
 use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
+use GuzzleHttp\Exception\ClientException;
 
 
 class getDayMax extends Command
@@ -16,7 +17,7 @@ class getDayMax extends Command
      * @var string
      */
     protected $signature = 'get_day_max';
-
+    protected $badSumbolsIds = [];
     /**
      * The console command description.
      *
@@ -45,15 +46,17 @@ class getDayMax extends Command
     {
         $firstElem = reset($candles);
         $dayMax = $firstElem[2];
+
         foreach ($candles as $candle) {
             if ($dayMax < $candle[2]) {
-                $dayMax = $candle;
+                $dayMax = $candle[2];
             }
         }
+
         return $dayMax;
     }
 
-    public function getCandles($symbol, $timestamp)
+    public function getCandles($symbol, $timestamp, $symbolId = null)
     {
 
         $client = new \GuzzleHttp\Client();
@@ -61,38 +64,57 @@ class getDayMax extends Command
         $now = Carbon::createFromTimestamp($timestamp);
         $nowSub24 = Carbon::createFromTimestamp($timestamp)->subHour(24);
 
+
         $url = "https://api.exchange.coinbase.com/products/{$symbol}/candles";
-        $response = $client->request('GET', $url, [
-            'query' => [
-                'granularity' => 21600,
-                'start' => $nowSub24->toDateTimeString(),
-                'end' =>   $now->toDateTimeString()
-            ],
-            'headers' => [
-                'Accept' => 'application/json',
-            ],
-        ]);
+
+        try {
+            $response = $client->request('GET', $url, [
+                'query' => [
+                    'granularity' => 21600,
+                    'start' => $nowSub24->toDateTimeString(),
+                    'end' =>   $now->toDateTimeString()
+                ],
+                'headers' => [
+                    'Accept' => 'application/json',
+                ],
+                'on_stats' => function (\GuzzleHttp\TransferStats $stats) {
+                    echo ($stats->getHandlerStats()['redirect_url']);
+                }
+            ]);
+        } catch (ClientException $e) {
+            $this->badSumbolsIds[] = $symbolId;
+            echo $e;
+            return null;
+        }
 
         $candles = json_decode($response->getBody()->getContents());
+        if (!$candles) {
+            $this->badSumbolsIds[] = $symbolId;
+        }
         return $candles;
     }
 
     public function handle()
     {
 
+
+        // $symbols = Symbol::with('ticker')->get();
+        // foreach ($symbols as $s) {
+        //     if (!$s->ticker) {
+        //         dump($s);
+        //     }
+        // }
+
+        // dd('1');
         $kucoin = new \ccxt\kucoin();
         $coinbase = new \ccxt\coinbase();
 
 
         $cbTimestamp = $coinbase->seconds();
-        $candles = $this->getCandles("ETH-USDT", $cbTimestamp);
-        dump($candles);
-        $max24 = $this->getSymbolDayMax($candles);
-        dd($max24);
 
 
         $dbSymbolsKucoin = Symbol::select(['id', 'symbol'])->where('exchanger', 'kucoin')->get()->pluck('id', 'symbol');
-        $dbSymbolsCoinbase = Symbol::select(['id', 'symbol'])->where('exchanger', 'coinbase')->get()->pluck('id', 'symbol');
+        $dbSymbolsCoinbase = Symbol::select(['id', 'symbol', 'base', 'quote'])->where('exchanger', 'coinbase')->get();
 
         // foreach ($symbols as $symbol) {
         //     usleep($kucoin->rateLimit * 1000);
@@ -100,21 +122,33 @@ class getDayMax extends Command
         // }
 
         $insertData = [];
-        foreach ($dbSymbolsCoinbase as $symbol => $symbolId) {
-            usleep($coinbase->rateLimit * 1000);
-            dump($symbol);
-            $ticker = $coinbase->fetch_ohlcv($symbol, '1h', null, 24);
-            dump($ticker);
+        foreach ($dbSymbolsCoinbase as $symbol) {
+
+            $symbolStr = $symbol['base'] . '-' . $symbol['quote'];
+            usleep($coinbase->rateLimit * 0);
+
+            dump($symbolStr);
+            //$cbTimestamp = $coinbase->seconds();
+            $candles = $this->getCandles($symbolStr, $cbTimestamp, $symbol->id);
+
+            if (!$candles) {
+                continue;
+            }
+            $max24 = $this->getSymbolDayMax($candles);
+            dump($max24);
             $insertData[] = [
-                'symbol_id' => $symbolId,
-                'max_last24' => $ticker['high'],
-                'max_last' => $ticker['high'],
+                'symbol_id' => $symbol->id,
+                'max_last24' => $max24,
+                'max_last' => $max24,
                 'max_cnt' => 0,
             ];
+            // dump($insertData);
         }
 
-
+        //dump($this->badSumbolsIds);
+        Symbol::whereIn('id',  $this->badSumbolsIds)->delete();
         Ticker::upsert($insertData, ['symbol_id'], ['max_last24', 'max_last', 'max_cnt']);
+
 
 
 
