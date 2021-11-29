@@ -9,21 +9,21 @@ use Illuminate\Console\Command;
 use GuzzleHttp\Exception\ClientException;
 
 
-class getDayMax extends Command
+class getDayMaxCoinbase extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'get_day_max';
+    protected $signature = 'get_day_max_coinbase';
     protected $badSumbolsIds = [];
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Get day max Coinbase';
 
     /**
      * Create a new command instance.
@@ -83,7 +83,7 @@ class getDayMax extends Command
             ]);
         } catch (ClientException $e) {
             $this->badSumbolsIds[] = $symbolId;
-            echo $e;
+            // echo $e;
             return null;
         }
 
@@ -97,35 +97,16 @@ class getDayMax extends Command
     public function handle()
     {
 
-
-        // $symbols = Symbol::with('ticker')->get();
-        // foreach ($symbols as $s) {
-        //     if (!$s->ticker) {
-        //         dump($s);
-        //     }
-        // }
-
-        // dd('1');
-        $kucoin = new \ccxt\kucoin();
         $coinbase = new \ccxt\coinbase();
-
-
         $cbTimestamp = $coinbase->seconds();
-
-
-        $dbSymbolsKucoin = Symbol::select(['id', 'symbol'])->where('exchanger', 'kucoin')->get()->pluck('id', 'symbol');
         $dbSymbolsCoinbase = Symbol::select(['id', 'symbol', 'base', 'quote'])->where('exchanger', 'coinbase')->get();
 
-        // foreach ($symbols as $symbol) {
-        //     usleep($kucoin->rateLimit * 1000);
-        //     dd($kucoin->fetch_ohlcv('ETH/USDT', '1h', null, 24));
-        // }
 
         $insertData = [];
         foreach ($dbSymbolsCoinbase as $symbol) {
 
             $symbolStr = $symbol['base'] . '-' . $symbol['quote'];
-            usleep($coinbase->rateLimit * 0);
+            //usleep($coinbase->rateLimit * 1000);
 
             dump($symbolStr);
             //$cbTimestamp = $coinbase->seconds();
@@ -135,41 +116,17 @@ class getDayMax extends Command
                 continue;
             }
             $max24 = $this->getSymbolDayMax($candles);
-            dump($max24);
+
             $insertData[] = [
                 'symbol_id' => $symbol->id,
                 'max_last24' => $max24,
                 'max_last' => $max24,
                 'max_cnt' => 0,
             ];
-            // dump($insertData);
         }
 
-        //dump($this->badSumbolsIds);
         Symbol::whereIn('id',  $this->badSumbolsIds)->delete();
         Ticker::upsert($insertData, ['symbol_id'], ['max_last24', 'max_last', 'max_cnt']);
-
-
-
-
-        $insertData = [];
-        foreach ($kucoin->fetchTickers() as $symbol => $ticker) {
-            if (!isset($dbSymbolsKucoin[$symbol])) continue;
-            $insertData[] = [
-                'symbol_id' => $dbSymbolsKucoin[$symbol],
-                'max_last24' => $ticker['high'],
-                'max_last' => $ticker['high'],
-                'max_cnt' => 0,
-            ];
-        }
-        Ticker::upsert($insertData, ['symbol_id'], ['max_last24', 'max_last', 'max_cnt']);
-
-
-
-
-
-
-
 
         return Command::SUCCESS;
     }
