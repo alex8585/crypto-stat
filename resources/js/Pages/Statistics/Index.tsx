@@ -30,12 +30,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }))
-//  Время обновления
 
-//  Название валюты
-//  Название биржи
-//  Процент +от максимума
-//  Цена в $
 const headCells = [
   {
     id: "updated_at",
@@ -76,7 +71,8 @@ const headCells = [
   
   
 ]
-
+//import Echo from 'laravel-echo'
+const Pusher = require('pusher-js')
 //let timeout: NodeJS.Timeout
 //const usersUrl = Ziggy.url +'/'+ Ziggy.routes.users.uri
 const usersUrl = route(route().current())
@@ -104,6 +100,46 @@ const Users = () => {
         preserveState: true,
       })
   }, [itemsQuery])
+
+
+
+  useEffect(() => {
+    Pusher.logToConsole = true;
+
+    var pusher = new Pusher('7a84b2007962ddc03841', {
+      cluster: 'eu'
+    });
+
+    var channel = pusher.subscribe('my-channel');
+    channel.bind('my-event', function(data:any) {
+      console.log(JSON.stringify(data));
+    });
+
+
+
+    // let echo = new Echo({
+    //   broadcaster: "pusher",
+    //   key: process.env.MIX_PUSHER_APP_KEY,
+    //   encrypted: false,
+    //   wsHost: window.location.hostname,
+    //   wssHost: window.location.hostname,
+    //   wsPort: 6001,
+    //   wssPort: 6001,
+    //   disableStats: true,
+    //   forceTLS: false,
+    //   enabledTransports: ['ws', 'wss']
+  //});
+
+    // echo.channel(`my-channel`).listen('TickerUpdateEvent', e => {
+    //   console.log(e)
+    // })
+  }, [])
+  
+
+
+
+
+
 
   const classes = useStyles()
 

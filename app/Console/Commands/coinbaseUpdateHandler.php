@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Ticker;
 use Illuminate\Console\Command;
+use App\Events\TickerUpdateEvent;
 use MockingMagician\CoinbaseProSdk\CoinbaseFacade;
 use MockingMagician\CoinbaseProSdk\Functional\Websocket\Message\ErrorMessage;
 use MockingMagician\CoinbaseProSdk\Functional\Websocket\Message\TickerMessage;
@@ -76,8 +77,9 @@ class coinbaseUpdateHandler extends Command
                     $productId = $message->getProductId();
                     $price = $message->getPrice();
                     $ticker = $this->tickersArray[$productId];
-
+                    broadcast(new TickerUpdateEvent($ticker));
                     if ($price > $ticker->max_last) {
+
                         dump($productId);
                         dump($ticker->max_last);
                         dump($price);

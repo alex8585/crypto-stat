@@ -9,15 +9,17 @@
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
+        "ably/ably-php": "^1.1",
         "ccxt/ccxt": "^1.62",
         "fruitcake/laravel-cors": "^2.0",
-        "guzzlehttp/guzzle": "^6",
+        "guzzlehttp/guzzle": "^7",
         "inertiajs/inertia-laravel": "^0.4.5",
         "kucoin/kucoin-php-sdk": "^1.1",
         "laravel/framework": "^8.65",
         "laravel/sanctum": "^2.6",
         "laravel/tinker": "^2.5",
         "mocking-magician/coinbase-pro-sdk": "^0.9.6",
+        "pusher/pusher-php-server": "^7.0",
         "tightenco/ziggy": "^1.4"
     },
     "require-dev": {
