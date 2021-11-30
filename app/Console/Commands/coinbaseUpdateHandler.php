@@ -59,7 +59,7 @@ class coinbaseUpdateHandler extends Command
 
 
         foreach ($tickers  as $t) {
-            $symbolStr = $t->symbol->base . '-' . $t->symbol->quote;
+            $symbolStr = $t->symbol->symbol;
             $this->symbolsStrings[] =  $symbolStr;
             $this->tickersArray[$symbolStr] = $t;
         }
@@ -84,6 +84,7 @@ class coinbaseUpdateHandler extends Command
                     $productId = $message->getProductId();
                     $price = $message->getPrice();
                     $ticker = $this->tickersArray[$productId];
+
                     if ($price > $ticker->max_last) {
                         dump($productId);
                         dump($ticker->max_last);

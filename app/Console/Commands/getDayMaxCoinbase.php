@@ -105,7 +105,7 @@ class getDayMaxCoinbase extends Command
         $insertData = [];
         foreach ($dbSymbolsCoinbase as $symbol) {
 
-            $symbolStr = $symbol['base'] . '-' . $symbol['quote'];
+            $symbolStr = $symbol['symbol'];
             //usleep($coinbase->rateLimit * 1000);
 
             dump($symbolStr);

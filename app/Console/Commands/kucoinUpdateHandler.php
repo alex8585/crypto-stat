@@ -2,19 +2,17 @@
 
 namespace App\Console\Commands;
 
+use KuCoin\SDK\Auth;
+use App\Models\Ticker;
+use React\EventLoop\Factory;
+use Ratchet\Client\WebSocket;
 use Illuminate\Console\Command;
-use MockingMagician\CoinbaseProSdk\CoinbaseFacade;
-use MockingMagician\CoinbaseProSdk\Functional\Websocket\WebsocketRunner;
-use MockingMagician\CoinbaseProSdk\Functional\Websocket\Message\ErrorMessage;
-use MockingMagician\CoinbaseProSdk\Functional\Websocket\Message\L2UpdateMessage;
-use MockingMagician\CoinbaseProSdk\Contracts\Websocket\SubscriberAuthenticationAwareInterface;
+use React\EventLoop\LoopInterface;
+use KuCoin\SDK\PrivateApi\WebSocketFeed;
+use KuCoin\SDK\Exceptions\BusinessException;
 
 class kucoinUpdateHandler extends Command
 {
-
-
-
-
 
     /**
      * The name and signature of the console command.
@@ -30,6 +28,8 @@ class kucoinUpdateHandler extends Command
      */
     protected $description = 'Kucoin Update';
 
+    protected $symbolsStrings = [];
+    protected $tickersArray = [];
     /**
      * Create a new command instance.
      *
@@ -40,6 +40,23 @@ class kucoinUpdateHandler extends Command
         parent::__construct();
     }
 
+
+
+    public function setTickersFromDb()
+    {
+        $tickers = Ticker::select(['id', 'symbol_id', 'max_last24', 'max_last'])->whereHas('symbol', function ($query) {
+            $query->where('exchanger', 'kucoin');
+        })->with('symbol')->get();
+
+        foreach ($tickers  as $t) {
+            $symbolStr = $t->symbol->symbol;
+            $this->symbolsStrings[] =  $symbolStr;
+            $this->tickersArray[$symbolStr] = $t;
+        }
+        //$this->tickerTopic = "/market/ticker:" . implode(',', $this->symbolsStrings);
+    }
+
+
     /**
      * Execute the console command.
      *
@@ -47,44 +64,42 @@ class kucoinUpdateHandler extends Command
      */
     public function handle()
     {
-        // $kucoin = new \ccxt\kucoin();
-        // $t = $kucoin->fetchTickers();
-        // dd($t);
-        // while (true) {
-        // }
 
-        // $websocket = CoinbaseFacade::createUnauthenticatedWebsocket();
 
-        // $subscriber = $websocket->newSubscriber();
-        // $subscriber->activateChannelLevel2(true, ['BTC-EUR']);
+        $this->setTickersFromDb();
 
-        // $websocket->run($subscriber, function ($runner) {
-        //     /** @var WebsocketRunner $runner */
-        //     while ($runner->isConnected()) {
-        //         $message = $runner->getMessage();
-        //         if ($message instanceof ErrorMessage) {
-        //             throw new Exception($message->getMessage());
-        //             // or break or what you want
-        //         }
 
-        //         if ($message instanceof L2UpdateMessage) {
-        //             $productId = $message->getProductId();
-        //             $time = $message->getTime();
-        //             $changes = $message->getChanges();
 
-        //             foreach ($changes as $change) {
+        $auth = null;
+        $api = new WebSocketFeed($auth);
+        $query = ['connectId' => uniqid('', true)];
+        $channels = [
+            ['topic' => '/market/ticker:all'],
+        ];
 
-        //                 $side = $change->getSide();
-        //                 $price = $change->getPrice();
+        try {
+            $api->subscribePublicChannels($query, $channels, function (array $message, WebSocket $ws, LoopInterface $loop) use ($api) {
+                var_dump($message);
 
-        //                 dump($productId);
-        //                 dump($price);
-        //             }
+                // $ticker = $this->tickersArray[$productId];
+                // if ($price > $ticker->max_last) {
+                //     dump($productId);
+                //     dump($ticker->max_last);
+                //     dump($price);
+                //     $ticker->max_last = $price;
+                //     $ticker->max_cnt = $ticker->max_cnt + 1;
+                //     $ticker->save();
+                //     $this->tickersArray[$productId] = $ticker;
+                //     // dump($ticker->max_cnt);
+                // }
 
-        //             continue;
-        //         }
-        //     }
-        // });
+            }, function ($code, $reason) {
+                echo "OnClose: {$code} {$reason}\n";
+            });
+        } catch (BusinessException $e) {
+            dump($e);
+        }
+
 
         return Command::SUCCESS;
     }

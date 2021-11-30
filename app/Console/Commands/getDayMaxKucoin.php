@@ -38,7 +38,9 @@ class getDayMaxKucoin extends Command
 
 
         $insertData = [];
-        foreach ($kucoin->fetchTickers() as $symbol => $ticker) {
+        foreach ($kucoin->fetchTickers() as  $ticker) {
+            $symbol =  $ticker['info']['symbol'];
+
             if (!isset($dbSymbolsKucoin[$symbol])) continue;
             $insertData[] = [
                 'symbol_id' => $dbSymbolsKucoin[$symbol],

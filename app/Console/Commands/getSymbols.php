@@ -37,67 +37,75 @@ class getSymbols extends Command
      *
      * @return int
      */
-    public function handle()
-    {
 
-        //kucoin
+    public function getKucoin()
+    {
         $kucoin = new \ccxt\kucoin();
         $symbols = $kucoin->load_markets();
 
-        $now = now();
+        //$now = now();
         $insertData = [];
+        $symbolsArr = [];
         foreach ($symbols as $symbol) {
+
             if ($symbol['quote'] == 'USDT') {
+                $symbolStr = $symbol['info']['symbol'];
+                $symbolsArr[] =  $symbolStr;
                 $insertData[] = [
-                    'symbol' => $symbol['symbol'],
+                    'symbol' =>  $symbolStr,
                     'exchanger' => 'kucoin',
-                    'base' => $symbol['base'],
-                    'quote' => $symbol['quote'],
-                    'created_at' => $now,
-                    'updated_at' => $now,
+                    'base' => $symbol['baseId'],
+                    'quote' => $symbol['quoteId'],
+                    //'created_at' => $now,
+                    //'updated_at' => $now,
                 ];
             }
         }
+
         try {
-            Symbol::insert($insertData);
+            Symbol::upsert($insertData, ['symbol', 'exchanger'], ['base', 'quote']);
+            Symbol::where('exchanger', 'kucoin')->whereNotIn('symbol', $symbolsArr)->delete();
         } catch (QueryException $e) {
             echo $e;
         }
+    }
 
-
+    public function getCoinbase()
+    {
         //coinbase
         $coinbase = new \ccxt\coinbase();
         $symbols = $coinbase->load_markets();
 
-
-
-        $now = now();
+        // $now = now();
         $insertData = [];
+        $symbolsArr = [];
         foreach ($symbols as $symbol) {
-
-
-
             if ($symbol['quote'] == 'USD') {
+                $symbolsArr[] =  $symbol['id'];
                 $insertData[] = [
-                    'symbol' => $symbol['symbol'],
+                    'symbol' => $symbol['id'],
                     'exchanger' => 'coinbase',
-                    'base' => $symbol['base'],
-                    'quote' => $symbol['quote'],
-                    'created_at' => $now,
-                    'updated_at' => $now,
+                    'base' => $symbol['baseId'],
+                    'quote' => $symbol['quoteId'],
+                    //'created_at' => $now,
+                    //'updated_at' => $now,
                 ];
             }
         }
 
         try {
-            Symbol::insert($insertData);
+            Symbol::upsert($insertData, ['symbol', 'exchanger'], ['base', 'quote']);
+            Symbol::where('exchanger', 'coinbase')->whereNotIn('symbol', $symbolsArr)->delete();
         } catch (QueryException $e) {
             echo $e;
         }
+    }
 
+    public function handle()
+    {
 
-
-
+        $this->getCoinbase();
+        // $this->getKucoin();
 
         return Command::SUCCESS;
     }
