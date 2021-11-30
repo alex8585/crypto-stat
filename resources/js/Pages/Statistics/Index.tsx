@@ -70,7 +70,7 @@ const headCells = [
   {
     id: "percentage",
     sortable: false,
-    label: "Процент +от максимума",
+    label: "%",
   },
   
   
@@ -167,17 +167,19 @@ const Users = () => {
               />
               <TableBody>
                 {items.slice().map((row: any, index: number) => {
-                  let symbol = row.symbol
+                  //let symbol = row.symbol
                   return (
                     <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                       <TableCell> {row.updated_at}</TableCell>
-                      <TableCell> {symbol.base}/{symbol.quote}</TableCell>
-                      <TableCell> {symbol.exchanger}</TableCell>
+                      <TableCell> {row.base}/{row.quote}</TableCell> 
+                      <TableCell> {row.exchanger}</TableCell>
                       
                       <TableCell> {row.max_cnt}</TableCell>
                       <TableCell> {row.max_last24.toFixed(6)}</TableCell>
 
                       <TableCell align="left">{row.max_last.toFixed(6)}</TableCell>
+                      <TableCell >{row.percent}</TableCell>
+                      
                       <TableCell className={classes.actionButton}>
                       </TableCell>
                     </TableRow>

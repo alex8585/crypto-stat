@@ -30,4 +30,12 @@ abstract class Model extends Eloquent
 
         return $query;
     }
+
+    public function calcPercents($a, $b)
+    {
+        if ($b == 0) {
+            return 100;
+        }
+        return ($a - $b) / $b * 100;
+    }
 }

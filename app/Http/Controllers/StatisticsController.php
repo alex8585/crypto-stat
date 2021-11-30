@@ -13,17 +13,23 @@ class StatisticsController extends Controller
         //$direction =  request('direction', 'asc');
         //$sort =  request('sort', 'id');
         $perPage =  request('perPage', 5);
-        //'items' => TgUser::sort($sort, $direction)->paginate($perPage)->withQueryString(),
-        $tickers = Ticker::sort('max_cnt', 'desc')->select([
-            'id',
-            'symbol_id',
-            'max_last24',
-            'max_last',
-            'updated_at',
-            'max_cnt',
-        ])
-            ->with('symbol')->paginate($perPage)->withQueryString();
 
+        $tickers = Ticker::sort('max_cnt', 'desc')->select([
+            'tickers.id',
+            'tickers.symbol_id',
+            'tickers.max_last24',
+            'tickers.max_last',
+            'tickers.updated_at',
+            'tickers.max_cnt',
+            'symbols.base',
+            'symbols.quote',
+            'symbols.exchanger',
+        ])->join('symbols', function ($q) {
+            $q->on('symbols.id', '=', 'tickers.symbol_id');
+        })
+
+            //->with('symbol')
+            ->paginate($perPage)->withQueryString();
         return Inertia::render('Statistics/Index', [
             'items' => $tickers,
         ]);
