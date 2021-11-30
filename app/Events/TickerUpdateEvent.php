@@ -21,11 +21,6 @@ class TickerUpdateEvent implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return ['my-channel'];
-    }
-
-    public function broadcastAs()
-    {
-        return 'my-event';
+        return new Channel('ticker-channel.ticker-update-event');
     }
 }

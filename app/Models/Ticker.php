@@ -10,6 +10,11 @@ class Ticker extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'created_at' => 'date:d-m-Y H:i',
+        'updated_at' => 'date:d-m-Y H:i',
+    ];
+
     protected $appends = [
         'percent',
 

@@ -71,8 +71,13 @@ const headCells = [
   
   
 ]
-//import Echo from 'laravel-echo'
+import Echo from 'laravel-echo'
 const Pusher = require('pusher-js')
+
+
+
+
+
 //let timeout: NodeJS.Timeout
 //const usersUrl = Ziggy.url +'/'+ Ziggy.routes.users.uri
 const usersUrl = route(route().current())
@@ -104,35 +109,24 @@ const Users = () => {
 
 
   useEffect(() => {
-    Pusher.logToConsole = true;
 
-    var pusher = new Pusher('7a84b2007962ddc03841', {
-      cluster: 'eu'
+   // Pusher.logToConsole = true;
+    let echo = new Echo({
+      broadcaster: 'pusher',
+      key: process.env.MIX_PUSHER_APP_KEY,
+      wsHost: window.location.hostname,
+      wsPort: 6001,
+      forceTLS: true,
+      encrypted: true,
+      cluster:  'eu',
+      transports: ['websocket', 'polling', 'flashsocket'] 
+    })
+    
+    echo.channel('ticker-channel.ticker-update-event').listen('TickerUpdateEvent', function(data:any) {
+      let ticker = data.message
+      console.log(ticker)
     });
 
-    var channel = pusher.subscribe('my-channel');
-    channel.bind('my-event', function(data:any) {
-      console.log(JSON.stringify(data));
-    });
-
-
-
-    // let echo = new Echo({
-    //   broadcaster: "pusher",
-    //   key: process.env.MIX_PUSHER_APP_KEY,
-    //   encrypted: false,
-    //   wsHost: window.location.hostname,
-    //   wssHost: window.location.hostname,
-    //   wsPort: 6001,
-    //   wssPort: 6001,
-    //   disableStats: true,
-    //   forceTLS: false,
-    //   enabledTransports: ['ws', 'wss']
-  //});
-
-    // echo.channel(`my-channel`).listen('TickerUpdateEvent', e => {
-    //   console.log(e)
-    // })
   }, [])
   
 
@@ -225,7 +219,7 @@ const Users = () => {
             </Table>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25, 100, 500]}
+            rowsPerPageOptions={[]}
             component="div"
             count={total}
             rowsPerPage={perPage}

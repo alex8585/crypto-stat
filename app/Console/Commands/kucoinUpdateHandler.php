@@ -7,13 +7,15 @@ use App\Models\Ticker;
 use React\EventLoop\Factory;
 use Ratchet\Client\WebSocket;
 use Illuminate\Console\Command;
+use App\Console\Traits\EventMsg;
+use App\Events\TickerUpdateEvent;
 use React\EventLoop\LoopInterface;
 use KuCoin\SDK\PrivateApi\WebSocketFeed;
 use KuCoin\SDK\Exceptions\BusinessException;
 
 class kucoinUpdateHandler extends Command
 {
-
+    use EventMsg;
     /**
      * The name and signature of the console command.
      *
@@ -44,7 +46,7 @@ class kucoinUpdateHandler extends Command
 
     public function setTickersFromDb()
     {
-        $tickers = Ticker::select(['id', 'symbol_id', 'max_last24', 'max_last'])->whereHas('symbol', function ($query) {
+        $tickers = Ticker::whereHas('symbol', function ($query) {
             $query->where('exchanger', 'kucoin');
         })->with('symbol')->get();
 
@@ -83,6 +85,7 @@ class kucoinUpdateHandler extends Command
                     $price = $message['data']['price'];
 
                     if ($price > $ticker->max_last) {
+                        broadcast(new TickerUpdateEvent($this->tickerToEventMsg($ticker)));
                         dump($symbolStr);
                         dump($ticker->max_last);
                         dump($price);

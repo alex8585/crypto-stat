@@ -8,10 +8,11 @@ use App\Events\TickerUpdateEvent;
 use MockingMagician\CoinbaseProSdk\CoinbaseFacade;
 use MockingMagician\CoinbaseProSdk\Functional\Websocket\Message\ErrorMessage;
 use MockingMagician\CoinbaseProSdk\Functional\Websocket\Message\TickerMessage;
-
+use App\Console\Traits\EventMsg;
 
 class coinbaseUpdateHandler extends Command
 {
+    use EventMsg;
     /**
      * The name and signature of the console command.
      *
@@ -44,10 +45,13 @@ class coinbaseUpdateHandler extends Command
      *
      * @return int
      */
+
+
+
     public function handle()
     {
 
-        $tickers = Ticker::select(['id', 'symbol_id', 'max_last24', 'max_last'])->whereHas('symbol', function ($query) {
+        $tickers = Ticker::whereHas('symbol', function ($query) {
             $query->where('exchanger', 'coinbase');
         })->with('symbol')->get();
 
@@ -77,7 +81,7 @@ class coinbaseUpdateHandler extends Command
                     $productId = $message->getProductId();
                     $price = $message->getPrice();
                     $ticker = $this->tickersArray[$productId];
-                    broadcast(new TickerUpdateEvent($ticker));
+                    broadcast(new TickerUpdateEvent($this->tickerToEventMsg($ticker)));
                     if ($price > $ticker->max_last) {
 
                         dump($productId);
