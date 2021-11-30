@@ -65,13 +65,9 @@ class kucoinUpdateHandler extends Command
     public function handle()
     {
 
-
         $this->setTickersFromDb();
 
-
-
-        $auth = null;
-        $api = new WebSocketFeed($auth);
+        $api = new WebSocketFeed(null);
         $query = ['connectId' => uniqid('', true)];
         $channels = [
             ['topic' => '/market/ticker:all'],
@@ -79,20 +75,24 @@ class kucoinUpdateHandler extends Command
 
         try {
             $api->subscribePublicChannels($query, $channels, function (array $message, WebSocket $ws, LoopInterface $loop) use ($api) {
-                var_dump($message);
+                //dump($message);
+                $symbolStr = $message['subject'];
 
-                // $ticker = $this->tickersArray[$productId];
-                // if ($price > $ticker->max_last) {
-                //     dump($productId);
-                //     dump($ticker->max_last);
-                //     dump($price);
-                //     $ticker->max_last = $price;
-                //     $ticker->max_cnt = $ticker->max_cnt + 1;
-                //     $ticker->save();
-                //     $this->tickersArray[$productId] = $ticker;
-                //     // dump($ticker->max_cnt);
-                // }
+                if (in_array($symbolStr, $this->symbolsStrings)) {
+                    $ticker = $this->tickersArray[$symbolStr];
+                    $price = $message['data']['price'];
 
+                    if ($price > $ticker->max_last) {
+                        dump($symbolStr);
+                        dump($ticker->max_last);
+                        dump($price);
+                        $ticker->max_last = $price;
+                        $ticker->max_cnt = $ticker->max_cnt + 1;
+                        $ticker->save();
+                        $this->tickersArray[$symbolStr] = $ticker;
+                        // dump($ticker->max_cnt);
+                    }
+                }
             }, function ($code, $reason) {
                 echo "OnClose: {$code} {$reason}\n";
             });

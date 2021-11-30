@@ -15,9 +15,6 @@ class coinbaseUpdateHandler extends Command
 {
 
 
-
-
-
     /**
      * The name and signature of the console command.
      *
@@ -77,7 +74,6 @@ class coinbaseUpdateHandler extends Command
                 $message = $runner->getMessage();
                 if ($message instanceof ErrorMessage) {
                     throw new Exception($message->getMessage());
-                    // or break or what you want
                 }
 
                 if ($message instanceof TickerMessage) {
@@ -93,31 +89,7 @@ class coinbaseUpdateHandler extends Command
                         $ticker->max_cnt = $ticker->max_cnt + 1;
                         $ticker->save();
                         $this->tickersArray[$productId] = $ticker;
-                        // dump($ticker->max_cnt);
                     }
-
-
-                    // foreach ($changes as $change) {
-                    //     $side = $change->getSide();
-                    //     if ($side == 'sell') {
-                    //         $price = $change->getPrice();
-                    //         //if ($productId == 'ETH-USD') {
-                    //         $ticker = $this->tickersArray[$productId];
-
-                    //         //dump($price);
-                    //         if ($price > $ticker->max_last) {
-                    //             dump($productId);
-                    //             dump($ticker->max_last);
-                    //             dump($price);
-                    //             $ticker->max_last = $price;
-                    //             $ticker->max_cnt = $ticker->max_cnt + 1;
-                    //             $ticker->save();
-                    //             $this->tickersArray[$productId] = $ticker;
-                    //             // dump($ticker->max_cnt);
-                    //         }
-                    //         //}
-                    //     }
-                    // }
 
                     continue;
                 }
