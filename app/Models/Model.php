@@ -14,4 +14,20 @@ abstract class Model extends Eloquent
         'created_at' => 'date:d-m-Y H:i',
         'updated_at' => 'date:d-m-Y H:i',
     ];
+
+
+    public function scopeSort($query, $sort, $direction)
+    {
+
+        $direction = $direction ?? 'asc';
+        $sort = $sort ?? 'id';
+
+        if (!in_array($direction, ['asc', 'desc'])) {
+            return $query;
+        }
+
+        $query->orderBy($sort, $direction);
+
+        return $query;
+    }
 }

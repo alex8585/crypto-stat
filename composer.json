@@ -12,15 +12,18 @@
         "ccxt/ccxt": "^1.62",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^6",
+        "inertiajs/inertia-laravel": "^0.4.5",
         "kucoin/kucoin-php-sdk": "^1.1",
         "laravel/framework": "^8.65",
-        "laravel/sanctum": "^2.11",
+        "laravel/sanctum": "^2.6",
         "laravel/tinker": "^2.5",
-        "mocking-magician/coinbase-pro-sdk": "^0.9.6"
+        "mocking-magician/coinbase-pro-sdk": "^0.9.6",
+        "tightenco/ziggy": "^1.4"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
         "fakerphp/faker": "^1.9.1",
+        "laravel/breeze": "^1.4",
         "laravel/sail": "^1.0.1",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^5.10",

@@ -5,16 +5,12 @@ namespace App\Console\Commands;
 use App\Models\Ticker;
 use Illuminate\Console\Command;
 use MockingMagician\CoinbaseProSdk\CoinbaseFacade;
-use MockingMagician\CoinbaseProSdk\Functional\Websocket\WebsocketRunner;
 use MockingMagician\CoinbaseProSdk\Functional\Websocket\Message\ErrorMessage;
 use MockingMagician\CoinbaseProSdk\Functional\Websocket\Message\TickerMessage;
-use MockingMagician\CoinbaseProSdk\Functional\Websocket\Message\L2UpdateMessage;
-use MockingMagician\CoinbaseProSdk\Contracts\Websocket\SubscriberAuthenticationAwareInterface;
+
 
 class coinbaseUpdateHandler extends Command
 {
-
-
     /**
      * The name and signature of the console command.
      *

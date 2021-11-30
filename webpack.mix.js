@@ -1,5 +1,5 @@
-const mix = require('laravel-mix');
-
+const mix = require("laravel-mix")
+const path = require('path');
 /*
  |--------------------------------------------------------------------------
  | Mix Asset Management
@@ -11,7 +11,26 @@ const mix = require('laravel-mix');
  |
  */
 
-mix.js('resources/js/app.js', 'public/js')
-    .postCss('resources/css/app.css', 'public/css', [
-        //
-    ]);
+mix
+  .ts("resources/js/app.js", "public/js")
+  .react()
+  .postCss("resources/css/app.css", "public/css", [
+    require("postcss-import"),
+    require("tailwindcss"),
+    require("autoprefixer"),
+  ])
+  .webpackConfig(require("./webpack.config"))
+
+if (mix.inProduction()) {
+  mix.version()
+}
+mix.webpackConfig({
+  resolve: {
+      alias: {
+          ziggy: path.resolve('vendor/tightenco/ziggy/dist'),
+      },
+  },
+});
+mix.disableNotifications()
+mix.sourceMaps()
+//mix.browserSync("https://local-devs-list.com/")
