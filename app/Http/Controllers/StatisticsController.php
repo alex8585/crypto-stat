@@ -12,7 +12,7 @@ class StatisticsController extends Controller
     {
         //$direction =  request('direction', 'asc');
         //$sort =  request('sort', 'id');
-        $perPage =  request('perPage', 5);
+        $perPage =  request('perPage', 100);
 
         $tickers = Ticker::sort('max_cnt', 'desc')->select([
             'tickers.id',

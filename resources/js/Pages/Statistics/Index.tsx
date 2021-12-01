@@ -19,6 +19,10 @@ import AdminTableHead from "@c/Admin/AdminTableHead"
 import { InertiaLink, usePage } from "@inertiajs/inertia-react"
 import { Inertia } from "@inertiajs/inertia"
 import Button from "@material-ui/core/Button"
+import { RootState } from '../../store'
+import { useSelector, useDispatch } from 'react-redux'
+import { pushTickers,pushTicker } from '../../features/tickers/tickersSlice'
+
 
 const useStyles = makeStyles((theme) => ({
   topBtnsWrapp: {
@@ -76,7 +80,6 @@ import Echo from 'laravel-echo'
 //const Pusher = require('pusher-js')
 window.io = require('socket.io-client');
 
-console.log('process.env.MIX_PUSHER_APP_KEY')
 
 
 //let timeout: NodeJS.Timeout
@@ -84,14 +87,20 @@ console.log('process.env.MIX_PUSHER_APP_KEY')
 const usersUrl = route(route().current())
 
 const Users = () => {
+  
 
+  const tickers = useSelector((state: RootState) => state.tickers.allTickers)
+  const dispatch = useDispatch()
+
+  console.log(tickers)
 
   const initialItemsQuery = {
     page: 1,
-    perPage: 5,
+    perPage: 100,
     direction: "desc",
-    sort: "id",
+    sort: "max_cnt",
   }
+
   const [itemsQuery, setItemsQuery] = useState(initialItemsQuery)
 
   let { page, perPage, direction, sort } = itemsQuery
@@ -111,8 +120,8 @@ const Users = () => {
 
   useEffect(() => {
 
-    console.log(process.env.MIX_PUSHER_APP_ID)
-    console.log(process.env.MIX_PUSHER_KEY)
+    //console.log(process.env.MIX_PUSHER_APP_ID)
+    //console.log(process.env.MIX_PUSHER_KEY)
     //Pusher.logToConsole = true;
     let echo = new Echo({
       broadcaster: "socket.io",
@@ -128,11 +137,12 @@ const Users = () => {
     
     echo.channel('ticker-channel.ticker-update-event').listen('TickerUpdateEvent', function(data:any) {
       let ticker = data.message
-      console.log(ticker)
+      dispatch(pushTicker(ticker))
     });
 
   }, [])
   
+
 
 
 
@@ -145,6 +155,22 @@ const Users = () => {
     items: { data: items },
     items: { total },
   } = usePage().props as PagePropsType
+
+
+
+  
+
+  useEffect(() => {
+    
+    console.log('useEffect')
+    dispatch(pushTickers(items))
+  }, [])
+
+
+
+
+
+
 
   const handleRequestSort = (
     event: ChangeEvent<HTMLInputElement>,
@@ -200,7 +226,7 @@ const Users = () => {
                 rowCount={items.length}
               />
               <TableBody>
-                {items.slice().map((row: any, index: number) => {
+                {tickers.slice().map((row: any, index: number) => {
                   //let symbol = row.symbol
                   return (
                     <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>

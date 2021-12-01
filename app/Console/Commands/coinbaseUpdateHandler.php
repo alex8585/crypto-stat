@@ -81,10 +81,10 @@ class coinbaseUpdateHandler extends Command
                     $productId = $message->getProductId();
                     $price = $message->getPrice();
                     $ticker = $this->tickersArray[$productId];
-                    if ($productId == "ETH-USD") {
+                    // if ($productId == "ETH-USD") {
 
-                        broadcast(new TickerUpdateEvent($this->tickerToEventMsg($ticker)));
-                    }
+                    //     broadcast(new TickerUpdateEvent($this->tickerToEventMsg($ticker)));
+                    // }
 
                     if ($price > $ticker->max_last) {
 

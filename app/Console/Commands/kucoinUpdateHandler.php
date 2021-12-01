@@ -84,8 +84,9 @@ class kucoinUpdateHandler extends Command
                     $ticker = $this->tickersArray[$symbolStr];
                     $price = $message['data']['price'];
 
+
                     if ($price > $ticker->max_last) {
-                        broadcast(new TickerUpdateEvent($this->tickerToEventMsg($ticker)));
+                        //broadcast(new TickerUpdateEvent($this->tickerToEventMsg($ticker)));
                         dump($symbolStr);
                         dump($ticker->max_last);
                         dump($price);
@@ -94,6 +95,11 @@ class kucoinUpdateHandler extends Command
                         $ticker->save();
                         $this->tickersArray[$symbolStr] = $ticker;
                         // dump($ticker->max_cnt);
+                    }
+                    if ($symbolStr == "ETH-USDT") {
+                        $ticker->max_last = $price;
+                        //$ticker->max_cnt = $ticker->max_cnt + 1;
+                        broadcast(new TickerUpdateEvent($this->tickerToEventMsg($ticker)));
                     }
                 }
             }, function ($code, $reason) {
