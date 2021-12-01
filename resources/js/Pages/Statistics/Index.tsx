@@ -22,7 +22,7 @@ import Button from "@material-ui/core/Button"
 import { RootState } from '../../store'
 import { useSelector, useDispatch } from 'react-redux'
 import { pushTickers,pushTicker } from '../../features/tickers/tickersSlice'
-
+import axios from "axios"
 
 const useStyles = makeStyles((theme) => ({
   topBtnsWrapp: {
@@ -85,6 +85,7 @@ window.io = require('socket.io-client');
 //let timeout: NodeJS.Timeout
 //const usersUrl = Ziggy.url +'/'+ Ziggy.routes.users.uri
 const usersUrl = route(route().current())
+const getTickersUrl = route('get-tickers')
 
 const Users = () => {
   
@@ -96,7 +97,7 @@ const Users = () => {
 
   const initialItemsQuery = {
     page: 1,
-    perPage: 100,
+    perPage: 50,
     direction: "desc",
     sort: "max_cnt",
   }
@@ -105,24 +106,29 @@ const Users = () => {
 
   let { page, perPage, direction, sort } = itemsQuery
   const firstUpdate = useRef(true);
-  useEffect(() => {
+
+  useEffect(async () =>  {
     if (firstUpdate.current) {
       firstUpdate.current = false;
       return;
     }
-      Inertia.get(usersUrl, itemsQuery, {
-        replace: true,
-        preserveState: true,
-      })
+   
+    let tickers = await getTickers(itemsQuery.page)
+    dispatch(pushTickers({tickers,page}))
+
+
+
   }, [itemsQuery])
 
 
+  const getTickers = async (page:number) => {
+      const response = await axios.get(getTickersUrl + '?page=' + page)
+      let tickers = response.data.data
+      return tickers
+  }
+  
 
   useEffect(() => {
-
-    //console.log(process.env.MIX_PUSHER_APP_ID)
-    //console.log(process.env.MIX_PUSHER_KEY)
-    //Pusher.logToConsole = true;
     let echo = new Echo({
       broadcaster: "socket.io",
       key: process.env.MIX_PUSHER_KEY,
@@ -143,12 +149,6 @@ const Users = () => {
   }, [])
   
 
-
-
-
-
-
-
   const classes = useStyles()
 
   let {
@@ -157,13 +157,9 @@ const Users = () => {
   } = usePage().props as PagePropsType
 
 
-
-  
-
   useEffect(() => {
-    
     console.log('useEffect')
-    dispatch(pushTickers(items))
+    dispatch(pushTickers({tickers:items,page}))
   }, [])
 
 
@@ -172,18 +168,7 @@ const Users = () => {
 
 
 
-  const handleRequestSort = (
-    event: ChangeEvent<HTMLInputElement>,
-    newSort: string
-  ) => {
-    const isAsc = sort === newSort && direction === "asc"
-    const newOrder = isAsc ? "desc" : "asc"
-    setItemsQuery({
-      ...itemsQuery,
-      direction: newOrder,
-      sort: newSort,
-    })
-  }
+  
 
   const handleChangePage = (
     event: MouseEvent<HTMLButtonElement> | null,
@@ -195,15 +180,7 @@ const Users = () => {
     })
   }
 
-  const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
-    let perPage = parseInt(event.target.value, 10)
-    setItemsQuery({
-      ...itemsQuery,
-      perPage,
-      page:1
-    })
-  }
-
+  
   //console.log(items)
   return (
     <AdminLayout title="Satistics">
@@ -219,10 +196,7 @@ const Users = () => {
                 headCells={headCells}
                 order={direction}
                 orderBy={sort}
-                onRequestSort={(
-                  e: ChangeEvent<HTMLInputElement>,
-                  sort: string
-                ) => handleRequestSort(e, sort)}
+                onRequestSort={()=>{}}
                 rowCount={items.length}
               />
               <TableBody>
@@ -257,7 +231,7 @@ const Users = () => {
             onPageChange={(e, newPage) => {
               handleChangePage(e, newPage)
             }}
-            onRowsPerPageChange={handleChangeRowsPerPage}
+          
           />
         </Paper>
       </Box>

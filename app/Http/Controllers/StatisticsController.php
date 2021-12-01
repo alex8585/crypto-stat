@@ -8,11 +8,30 @@ use Illuminate\Http\Request;
 
 class StatisticsController extends Controller
 {
+
+
     public function index()
     {
         //$direction =  request('direction', 'asc');
         //$sort =  request('sort', 'id');
-        $perPage =  request('perPage', 100);
+
+        return Inertia::render('Statistics/Index', [
+            'items' => $this->getTickersFromDb(),
+        ]);
+    }
+
+    public function getTickers()
+    {
+        //$page =  request('page', 1);
+        //return $page;
+
+        return $this->getTickersFromDb();
+    }
+
+
+    private function getTickersFromDb()
+    {
+        $perPage =  request('perPage', 50);
 
         $tickers = Ticker::sort('max_cnt', 'desc')->select([
             'tickers.id',
@@ -26,12 +45,8 @@ class StatisticsController extends Controller
             'symbols.exchanger',
         ])->join('symbols', function ($q) {
             $q->on('symbols.id', '=', 'tickers.symbol_id');
-        })
+        })->paginate($perPage)->withQueryString();
 
-            //->with('symbol')
-            ->paginate($perPage)->withQueryString();
-        return Inertia::render('Statistics/Index', [
-            'items' => $tickers,
-        ]);
+        return  $tickers;
     }
 }

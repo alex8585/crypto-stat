@@ -81,10 +81,6 @@ class coinbaseUpdateHandler extends Command
                     $productId = $message->getProductId();
                     $price = $message->getPrice();
                     $ticker = $this->tickersArray[$productId];
-                    // if ($productId == "ETH-USD") {
-
-                    //     broadcast(new TickerUpdateEvent($this->tickerToEventMsg($ticker)));
-                    // }
 
                     if ($price > $ticker->max_last) {
 
@@ -93,6 +89,7 @@ class coinbaseUpdateHandler extends Command
                         dump($price);
                         $ticker->max_last = $price;
                         $ticker->max_cnt = $ticker->max_cnt + 1;
+                        broadcast(new TickerUpdateEvent($this->tickerToEventMsg($ticker)));
                         $ticker->save();
                         $this->tickersArray[$productId] = $ticker;
                     }

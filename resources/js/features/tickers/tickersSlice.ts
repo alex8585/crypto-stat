@@ -15,19 +15,27 @@ export const tickersSlice = createSlice({
   initialState,
   reducers: {
     pushTickers: (state, action: PayloadAction<any>) => {
-      action.payload.forEach((elem: any, index: number) => {
+      let newTickers = [
+        ...state.allTickers
+      ]
 
-        let isFound = state.allTickers.find((o: any, i) => {
+      action.payload.tickers.forEach((elem: any, index: number) => {
+
+        let isFound = newTickers.find((o: any, i) => {
           if (o.id === elem.id) {
-            state.allTickers[i] = elem;
+            newTickers[i] = elem;
             return true;
           }
           return false
         });
 
         if (!isFound) {
-          state.allTickers.push(elem);
+          newTickers.push(elem);
         }
+
+
+        newTickers.sort((a, b) => (a.max_cnt < b.max_cnt) ? 1 : -1)
+        state.allTickers = newTickers
 
       })
     },
@@ -35,20 +43,28 @@ export const tickersSlice = createSlice({
     pushTicker: (state, action: PayloadAction<any>) => {
       let ticker = action.payload
 
-      state.allTickers.find((o, i) => {
+      let newTickers = [
+        ...state.allTickers
+      ]
+
+
+      let isFound = newTickers.find((o, i) => {
         if (o.id === ticker.id) {
           console.log(ticker.max_last)
-          state.allTickers[i] = ticker;
+          newTickers[i] = ticker;
           return true;
         }
       });
 
+      if (!isFound) {
+        newTickers.push(ticker);
+      }
 
-      // console.log(ticker)
-      // let obj = state.allTickers.find(o => o.id === ticker.id);
-      // if (obj) {
-      //   console.log(obj)
-      // }
+
+      newTickers.sort((a, b) => (a.max_cnt < b.max_cnt) ? 1 : -1)
+      state.allTickers = newTickers
+
+
 
     },
   },

@@ -18,6 +18,7 @@ trait EventMsg
             'base' => $ticker['symbol']['base'],
             'quote' => $ticker['symbol']['quote'],
             'exchanger' => $ticker['symbol']['exchanger'],
+            'percent' => $ticker['percent'],
         ];
     }
 }

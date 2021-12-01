@@ -33,6 +33,8 @@ require __DIR__ . '/auth.php';
 
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('statistics', [StatisticsController::class, 'index'])->name('statistics');
+    Route::get('get-tickers', [StatisticsController::class, 'getTickers'])->name('get-tickers');
+
     //Route::get('/', [UsersController::class, 'index'])->name('users');
     //Route::get('users', [UsersController::class, 'index'])->name('users');
     //Route::get('activities', [ActivitiesController::class, 'index'])->name('activities');
