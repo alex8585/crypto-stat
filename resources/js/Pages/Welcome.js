@@ -7,12 +7,7 @@ export default function Welcome(props) {
       <div className="fixed top-0 right-0 px-6 py-4 sm:block">
         {props.auth.user ? (
           <>
-            <InertiaLink
-              href="/admin"
-              className="text-sm text-gray-700 underline"
-            >
-              Dashboard
-            </InertiaLink>{" "}
+            
             <InertiaLink
               method="post"
               href={route("logout")}

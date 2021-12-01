@@ -116,14 +116,7 @@ export default function Authenticated({ auth, header, children }) {
           }
         >
           <div className="pt-2 pb-3 space-y-1">
-            <ResponsiveNavLink
-              method="post"
-              href={route("dashboard")}
-              active={route().current("dashboard")}
-              as="button"
-            >
-              Dashboard
-            </ResponsiveNavLink>
+           
           </div>
 
           <div className="pt-4 pb-1 border-t border-gray-200">
