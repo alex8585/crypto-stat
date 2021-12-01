@@ -32,14 +32,11 @@ return [
 
         'pusher' => [
             'driver' => 'pusher',
-            'key' => env('PUSHER_APP_KEY'),
-            'secret' => env('PUSHER_APP_SECRET'),
+            'key' => env('PUSHER_KEY'),
+            'secret' => null,
             'app_id' => env('PUSHER_APP_ID'),
             'options' => [
-                'cluster' => 'eu',
-                'useTLS' => false,
-                'encrypted' => true,
-                'host' => '127.0.0.1',
+                'host' => 'localhost',
                 'port' => 6001,
                 'scheme' => 'http'
             ],

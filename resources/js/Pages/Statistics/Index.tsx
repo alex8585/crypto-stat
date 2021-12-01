@@ -71,11 +71,12 @@ const headCells = [
   
   
 ]
+declare const window: any;
 import Echo from 'laravel-echo'
-const Pusher = require('pusher-js')
+//const Pusher = require('pusher-js')
+window.io = require('socket.io-client');
 
-
-
+console.log('process.env.MIX_PUSHER_APP_KEY')
 
 
 //let timeout: NodeJS.Timeout
@@ -110,16 +111,19 @@ const Users = () => {
 
   useEffect(() => {
 
-   // Pusher.logToConsole = true;
+    console.log(process.env.MIX_PUSHER_APP_ID)
+    console.log(process.env.MIX_PUSHER_KEY)
+    //Pusher.logToConsole = true;
     let echo = new Echo({
-      broadcaster: 'pusher',
-      key: process.env.MIX_PUSHER_APP_KEY,
+      broadcaster: "socket.io",
+      key: process.env.MIX_PUSHER_KEY,
+      app_id: process.env.MIX_PUSHER_APP_ID,
       wsHost: window.location.hostname,
       wsPort: 6001,
-      forceTLS: true,
-      encrypted: true,
-      cluster:  'eu',
-      transports: ['websocket', 'polling', 'flashsocket'] 
+      forceTLS: false,
+      disableStats: true,
+      host: "http://localhost:6001",
+      transports: ["websocket"]
     })
     
     echo.channel('ticker-channel.ticker-update-event').listen('TickerUpdateEvent', function(data:any) {
@@ -174,7 +178,7 @@ const Users = () => {
     })
   }
 
-  console.log(items)
+  //console.log(items)
   return (
     <AdminLayout title="Satistics">
       <Box sx={{ width: "100%" }}>
