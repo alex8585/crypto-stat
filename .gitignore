@@ -13,3 +13,10 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+log.txt
+
+nginx-selfsigned.crt
+nginx-selfsigned.key
+iptables-rules-origin-server
+iptables-rules-server
+

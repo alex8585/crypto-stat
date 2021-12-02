@@ -105,7 +105,7 @@ class getSymbols extends Command
     {
 
         $this->getCoinbase();
-        // $this->getKucoin();
+        $this->getKucoin();
 
         return Command::SUCCESS;
     }

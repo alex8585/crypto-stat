@@ -129,16 +129,24 @@ const Users = () => {
   
 
   useEffect(() => {
+    //console.log(process.env.MIX_PUSHER_HOST)
+     //console.log(process.env.MIX_PUSHER_HOST)
+     //key: process.env.MIX_PUSHER_KEY,
+     // app_id: process.env.MIX_PUSHER_APP_ID,
+     //
+    let host = 'https://local-crypto-stat.com:6001'
+    console.log(host)
     let echo = new Echo({
       broadcaster: "socket.io",
-      key: process.env.MIX_PUSHER_KEY,
-      app_id: process.env.MIX_PUSHER_APP_ID,
+      withCredentials:false,
       wsHost: window.location.hostname,
       wsPort: 6001,
-      forceTLS: false,
+      forceTLS: true,
       disableStats: true,
-      host: "http://localhost:6001",
-      transports: ["websocket"]
+      host: host,
+      
+     
+      
     })
     
     echo.channel('ticker-channel.ticker-update-event').listen('TickerUpdateEvent', function(data:any) {
@@ -163,12 +171,6 @@ const Users = () => {
   }, [])
 
 
-
-
-
-
-
-  
 
   const handleChangePage = (
     event: MouseEvent<HTMLButtonElement> | null,
