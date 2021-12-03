@@ -84,9 +84,9 @@ class coinbaseUpdateHandler extends Command
 
                     if ($price > $ticker->max_last) {
 
-                        dump($productId);
-                        dump($ticker->max_last);
-                        dump($price);
+                        //dump($productId);
+                        //dump($ticker->max_last);
+                        //dump($price);
                         $ticker->max_last = $price;
                         $ticker->max_cnt = $ticker->max_cnt + 1;
                         broadcast(new TickerUpdateEvent($this->tickerToEventMsg($ticker)));

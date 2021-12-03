@@ -86,9 +86,9 @@ class kucoinUpdateHandler extends Command
 
 
                     if ($price > $ticker->max_last) {
-                        dump($symbolStr);
-                        dump($ticker->max_last);
-                        dump($price);
+                        //dump($symbolStr);
+                        //dump($ticker->max_last);
+                        //dump($price);
                         $ticker->max_last = $price;
                         $ticker->max_cnt = $ticker->max_cnt + 1;
 

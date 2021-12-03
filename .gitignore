@@ -19,4 +19,5 @@ nginx-selfsigned.crt
 nginx-selfsigned.key
 iptables-rules-origin-server
 iptables-rules-server
-
+statistic.skaden.cloud_le1.crt
+statistic.skaden.cloud_le1.key

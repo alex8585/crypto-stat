@@ -23,6 +23,7 @@ export const tickersSlice = createSlice({
 
         let isFound = newTickers.find((o: any, i) => {
           if (o.id === elem.id) {
+            // @ts-ignore
             newTickers[i] = elem;
             return true;
           }
@@ -30,11 +31,13 @@ export const tickersSlice = createSlice({
         });
 
         if (!isFound) {
+          // @ts-ignore
           newTickers.push(elem);
         }
 
-
+        // @ts-ignore
         newTickers.sort((a, b) => (a.max_cnt < b.max_cnt) ? 1 : -1)
+        // @ts-ignore
         state.allTickers = newTickers
 
       })
@@ -49,19 +52,23 @@ export const tickersSlice = createSlice({
 
 
       let isFound = newTickers.find((o, i) => {
+        // @ts-ignore
         if (o.id === ticker.id) {
-          console.log(ticker.max_last)
+          //console.log(ticker.max_last)
+          // @ts-ignore
           newTickers[i] = ticker;
           return true;
         }
       });
 
       if (!isFound) {
+        // @ts-ignore
         newTickers.push(ticker);
       }
 
-
+      // @ts-ignore
       newTickers.sort((a, b) => (a.max_cnt < b.max_cnt) ? 1 : -1)
+      // @ts-ignore
       state.allTickers = newTickers
 
 

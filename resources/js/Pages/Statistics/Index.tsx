@@ -7,18 +7,13 @@ import TablePagination from "@material-ui/core/TablePagination"
 import TableRow from "@material-ui/core/TableRow"
 import Link from "@material-ui/core/Link"
 import Paper from "@material-ui/core/Paper"
-//import Alert from "@material-ui/core/Alert"
 
-//import NavLink from "../../Components/Auth/NavLink"
 import AdminLayout from "@l/AdminLayout"
 import React, { useState, useEffect, ChangeEvent, MouseEvent ,useRef} from "react"
 import { makeStyles } from "@material-ui/styles"
-//import moment from "moment"
 
 import AdminTableHead from "@c/Admin/AdminTableHead"
-import { InertiaLink, usePage } from "@inertiajs/inertia-react"
-import { Inertia } from "@inertiajs/inertia"
-import Button from "@material-ui/core/Button"
+import {  usePage } from "@inertiajs/inertia-react"
 import { RootState } from '../../store'
 import { useSelector, useDispatch } from 'react-redux'
 import { pushTickers,pushTicker } from '../../features/tickers/tickersSlice'
@@ -39,37 +34,37 @@ const headCells = [
   {
     id: "updated_at",
     sortable: false,
-    label: "Время обновления",
+    label: "TIME OF UPDATE",
   },
   {
     id: "symbol",
     sortable: false,
-    label: "Название пары",
+    label: "PAIR NAME",
   },
   {
     id: "exchanger",
     sortable: false,
-    label: "Название биржи",
+    label: "EXCHANGES",
   },
   {
     id: "count",
     sortable: false,
-    label: "Счётчик",
+    label: "COUNT ALERTS",
   },
   {
     id: "price24",
     sortable: false,
-    label: "24h максимум ($)",
+    label: "24H MAX",
   },
   {
     id: "price",
     sortable: false,
-    label: "Цена ($)",
+    label: "CURRENT PRICE ($)",
   },
   {
     id: "percentage",
     sortable: false,
-    label: "%",
+    label: "% OF INCREASE",
   },
   
   
@@ -82,9 +77,6 @@ window.io = require('socket.io-client');
 
 
 
-//let timeout: NodeJS.Timeout
-//const usersUrl = Ziggy.url +'/'+ Ziggy.routes.users.uri
-const usersUrl = route(route().current())
 const getTickersUrl = route('get-tickers')
 
 const Users = () => {
@@ -93,7 +85,7 @@ const Users = () => {
   const tickers = useSelector((state: RootState) => state.tickers.allTickers)
   const dispatch = useDispatch()
 
-  console.log(tickers)
+  console.log("tickers")
 
   const initialItemsQuery = {
     page: 1,
@@ -106,7 +98,7 @@ const Users = () => {
 
   let { page, perPage, direction, sort } = itemsQuery
   const firstUpdate = useRef(true);
-
+// @ts-ignore
   useEffect(async () =>  {
     if (firstUpdate.current) {
       firstUpdate.current = false;
@@ -134,7 +126,8 @@ const Users = () => {
      //key: process.env.MIX_PUSHER_KEY,
      // app_id: process.env.MIX_PUSHER_APP_ID,
      //
-    let host = 'https://local-crypto-stat.com:6001'
+    let host = process.env.MIX_PUSHER_HOST
+    
     console.log(host)
     let echo = new Echo({
       broadcaster: "socket.io",
@@ -166,7 +159,6 @@ const Users = () => {
 
 
   useEffect(() => {
-    console.log('useEffect')
     dispatch(pushTickers({tickers:items,page}))
   }, [])
 
@@ -183,7 +175,6 @@ const Users = () => {
   }
 
   
-  //console.log(items)
   return (
     <AdminLayout title="Satistics">
       <Box sx={{ width: "100%" }}>
@@ -216,8 +207,8 @@ const Users = () => {
                       <TableCell align="left">{row.max_last.toFixed(6)}</TableCell>
                       <TableCell >{row.percent}</TableCell>
                       
-                      <TableCell className={classes.actionButton}>
-                      </TableCell>
+                      {/* <TableCell className={classes.actionButton}>
+                      </TableCell> */}
                     </TableRow>
                   )
                 })}
