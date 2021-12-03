@@ -18,7 +18,7 @@ import { RootState } from '../../store'
 import { useSelector, useDispatch } from 'react-redux'
 import { pushTickers,pushTicker } from '../../features/tickers/tickersSlice'
 import axios from "axios"
-
+import moment from 'moment'
 const useStyles = makeStyles((theme) => ({
   topBtnsWrapp: {
     margin: "15px 0",
@@ -28,6 +28,14 @@ const useStyles = makeStyles((theme) => ({
       margin: "0px 5px",
     },
   },
+  full_name: {
+    maxWidth:"100px"
+  },
+  table: {
+    "& td": {
+      padding:"10px"
+    }
+  }
 }))
 
 const headCells = [
@@ -35,6 +43,11 @@ const headCells = [
     id: "updated_at",
     sortable: false,
     label: "TIME OF UPDATE",
+  },
+  {
+    id:"full_name",
+    sortable: false,
+    label: "COIN",
   },
   {
     id: "symbol",
@@ -85,7 +98,7 @@ const Users = () => {
   const tickers = useSelector((state: RootState) => state.tickers.allTickers)
   const dispatch = useDispatch()
 
-  console.log("tickers")
+  console.log(tickers)
 
   const initialItemsQuery = {
     page: 1,
@@ -192,19 +205,21 @@ const Users = () => {
                 onRequestSort={()=>{}}
                 rowCount={items.length}
               />
-              <TableBody>
+              <TableBody className={classes.table}>
                 {tickers.slice().map((row: any, index: number) => {
                   //let symbol = row.symbol
                   return (
                     <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                      <TableCell> {row.updated_at}</TableCell>
+                      <TableCell > {moment.unix(row.updated_at).format('DD-MM-YYYY hh:mm:ss') }</TableCell>
+                      <TableCell className={classes.full_name}> {row.full_name}</TableCell>
+                      
                       <TableCell> {row.base}/{row.quote}</TableCell> 
                       <TableCell> {row.exchanger}</TableCell>
                       
-                      <TableCell> {row.max_cnt}</TableCell>
+                      <TableCell align="center"> {row.max_cnt}</TableCell>
                       <TableCell> {row.max_last24.toFixed(6)}</TableCell>
 
-                      <TableCell align="left">{row.max_last.toFixed(6)}</TableCell>
+                      <TableCell >{row.max_last.toFixed(6)}</TableCell>
                       <TableCell >{row.percent}</TableCell>
                       
                       {/* <TableCell className={classes.actionButton}>

@@ -39,6 +39,7 @@ class getDayMaxKucoin extends Command
 
         $insertData = [];
         foreach ($kucoin->fetchTickers() as  $ticker) {
+
             $symbol =  $ticker['info']['symbol'];
 
             if (!isset($dbSymbolsKucoin[$symbol])) continue;
@@ -47,6 +48,9 @@ class getDayMaxKucoin extends Command
                 'max_last24' => $ticker['high'],
                 'max_last' => $ticker['high'],
                 'max_cnt' => 0,
+                'volume_24h' => 0,
+                'volume_30d' => 0,
+                //'vol_curent' => $ticker['baseVolume']
             ];
         }
 

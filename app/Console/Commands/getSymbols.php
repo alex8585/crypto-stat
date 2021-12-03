@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Symbol;
 use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Artisan;
 
 class getSymbols extends Command
 {
@@ -22,6 +23,8 @@ class getSymbols extends Command
      */
     protected $description = 'Command description';
 
+
+
     /**
      * Create a new command instance.
      *
@@ -38,6 +41,7 @@ class getSymbols extends Command
      * @return int
      */
 
+
     public function getKucoin()
     {
         $kucoin = new \ccxt\kucoin();
@@ -47,6 +51,14 @@ class getSymbols extends Command
         $insertData = [];
         $symbolsArr = [];
         foreach ($symbols as $symbol) {
+            // if ($symbol["baseId"] == 'SOL') {
+            //     dump($symbol);
+            // } else {
+            //     continue;
+            // }
+            // if ($symbol['base'] == 'BTC3S') {
+            //     dd($symbol);
+            // }
 
             if ($symbol['quote'] == 'USDT') {
                 $symbolStr = $symbol['info']['symbol'];
@@ -56,8 +68,7 @@ class getSymbols extends Command
                     'exchanger' => 'kucoin',
                     'base' => $symbol['baseId'],
                     'quote' => $symbol['quoteId'],
-                    //'created_at' => $now,
-                    //'updated_at' => $now,
+                    'base2' => $symbol['base'],
                 ];
             }
         }
@@ -72,11 +83,10 @@ class getSymbols extends Command
 
     public function getCoinbase()
     {
-        //coinbase
+
         $coinbase = new \ccxt\coinbase();
         $symbols = $coinbase->load_markets();
 
-        // $now = now();
         $insertData = [];
         $symbolsArr = [];
         foreach ($symbols as $symbol) {
@@ -87,8 +97,8 @@ class getSymbols extends Command
                     'exchanger' => 'coinbase',
                     'base' => $symbol['baseId'],
                     'quote' => $symbol['quoteId'],
-                    //'created_at' => $now,
-                    //'updated_at' => $now,
+                    'base2' => $symbol['base'],
+
                 ];
             }
         }
@@ -101,12 +111,15 @@ class getSymbols extends Command
         }
     }
 
+
+
+
     public function handle()
     {
 
-        $this->getCoinbase();
         $this->getKucoin();
-
+        $this->getCoinbase();
+        Artisan::call('get_sumbols_names');
         return Command::SUCCESS;
     }
 }

@@ -82,13 +82,31 @@ class coinbaseUpdateHandler extends Command
                     $price = $message->getPrice();
                     $ticker = $this->tickersArray[$productId];
 
+                    $message->getVolume30d();
                     if ($price > $ticker->max_last) {
-
                         //dump($productId);
                         //dump($ticker->max_last);
                         //dump($price);
+                        $ticker->volume_24h = $message->getVolume24h();
+                        $ticker->volume_30d = $message->getVolume30d();
+
+                        if ($ticker->max_last24 == 0) {
+                            $ticker->max_last24 =  $message->getHigh24h();
+                        }
+
+
                         $ticker->max_last = $price;
                         $ticker->max_cnt = $ticker->max_cnt + 1;
+
+                        broadcast(new TickerUpdateEvent($this->tickerToEventMsg($ticker)));
+                        $ticker->save();
+                        $this->tickersArray[$productId] = $ticker;
+                    } else if ($ticker->volume_24h == 0) {
+                        $ticker->volume_24h = $message->getVolume24h();
+                        $ticker->volume_30d = $message->getVolume30d();
+                        $ticker->max_last24 =  $message->getHigh24h();
+                        $ticker->max_last = $ticker->max_last24;
+
                         broadcast(new TickerUpdateEvent($this->tickerToEventMsg($ticker)));
                         $ticker->save();
                         $this->tickersArray[$productId] = $ticker;

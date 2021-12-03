@@ -43,6 +43,7 @@ class StatisticsController extends Controller
             'symbols.base',
             'symbols.quote',
             'symbols.exchanger',
+            'symbols.full_name',
         ])->join('symbols', function ($q) {
             $q->on('symbols.id', '=', 'tickers.symbol_id');
         })->paginate($perPage)->withQueryString();

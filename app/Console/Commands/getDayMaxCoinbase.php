@@ -98,35 +98,32 @@ class getDayMaxCoinbase extends Command
     {
 
         $coinbase = new \ccxt\coinbase();
-        $cbTimestamp = $coinbase->seconds();
+        //$cbTimestamp = $coinbase->seconds();
         $dbSymbolsCoinbase = Symbol::select(['id', 'symbol', 'base', 'quote'])->where('exchanger', 'coinbase')->get();
-
 
         $insertData = [];
         foreach ($dbSymbolsCoinbase as $symbol) {
 
-            $symbolStr = $symbol['symbol'];
-            //usleep($coinbase->rateLimit * 1000);
-
-            dump($symbolStr);
-            //$cbTimestamp = $coinbase->seconds();
-            $candles = $this->getCandles($symbolStr, $cbTimestamp, $symbol->id);
-
-            if (!$candles) {
-                continue;
-            }
-            $max24 = $this->getSymbolDayMax($candles);
+            // $symbolStr = $symbol['symbol'];
+            // dump($symbolStr);
+            // $candles = $this->getCandles($symbolStr, $cbTimestamp, $symbol->id);
+            // if (!$candles) {
+            //     continue;
+            // }
+            // $max24 = $this->getSymbolDayMax($candles);
 
             $insertData[] = [
                 'symbol_id' => $symbol->id,
-                'max_last24' => $max24,
-                'max_last' => $max24,
+                'max_last24' => 0,
+                'max_last' => 0,
                 'max_cnt' => 0,
+                'volume_24h' => 0,
+                'volume_30d' => 0,
             ];
         }
 
         Symbol::whereIn('id',  $this->badSumbolsIds)->delete();
-        Ticker::upsert($insertData, ['symbol_id'], ['max_last24', 'max_last', 'max_cnt']);
+        Ticker::upsert($insertData, ['symbol_id'], ['max_last24', 'max_last', 'max_cnt', 'volume_24h', 'volume_30d']);
 
         return Command::SUCCESS;
     }
