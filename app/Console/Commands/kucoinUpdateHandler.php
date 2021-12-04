@@ -48,7 +48,7 @@ class kucoinUpdateHandler extends Command
     {
         $tickers = Ticker::whereHas('symbol', function ($query) {
             $query->where('exchanger', 'kucoin');
-        })->with('symbol')->get();
+        })->with('symbol', 'volume')->get();
 
         foreach ($tickers  as $t) {
             $symbolStr = $t->symbol->symbol;
@@ -84,14 +84,14 @@ class kucoinUpdateHandler extends Command
                     $ticker = $this->tickersArray[$symbolStr];
                     $price = $message['data']['price'];
 
-                    dd($message);
                     if ($price > $ticker->max_last) {
                         //dump($symbolStr);
                         //dump($ticker->max_last);
                         //dump($price);
                         $ticker->max_last = $price;
                         $ticker->max_cnt = $ticker->max_cnt + 1;
-
+                        $ticker->max_update_time = now();
+                        $ticker->load('volume');
                         broadcast(new TickerUpdateEvent($this->tickerToEventMsg($ticker)));
                         $ticker->save();
                         $this->tickersArray[$symbolStr] = $ticker;

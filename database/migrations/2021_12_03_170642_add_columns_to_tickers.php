@@ -15,7 +15,6 @@ class AddColumnsToTickers extends Migration
     {
         Schema::table('tickers', function (Blueprint $table) {
             $table->float('volume_24h', 32, 16)->default(0);
-            $table->float('volume_30d', 32, 16)->default(0);
         });
     }
 
@@ -28,7 +27,6 @@ class AddColumnsToTickers extends Migration
     {
         Schema::table('tickers', function (Blueprint $table) {
             $table->dropColumn('volume_24h');
-            $table->dropColumn('volume_30d');
         });
     }
 }

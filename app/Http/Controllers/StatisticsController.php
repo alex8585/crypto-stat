@@ -38,14 +38,18 @@ class StatisticsController extends Controller
             'tickers.symbol_id',
             'tickers.max_last24',
             'tickers.max_last',
-            'tickers.updated_at',
+            'tickers.max_update_time',
             'tickers.max_cnt',
+            'tickers.volume_24h',
+            'coin_volumes.volume_30d',
             'symbols.base',
             'symbols.quote',
             'symbols.exchanger',
             'symbols.full_name',
         ])->join('symbols', function ($q) {
             $q->on('symbols.id', '=', 'tickers.symbol_id');
+        })->join('coin_volumes', function ($q) {
+            $q->on('tickers.id', '=', 'coin_volumes.ticker_id');
         })->paginate($perPage)->withQueryString();
 
         return  $tickers;

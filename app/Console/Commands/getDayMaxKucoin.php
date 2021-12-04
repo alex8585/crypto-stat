@@ -37,7 +37,7 @@ class getDayMaxKucoin extends Command
 
         $kucoin = new \ccxt\kucoin();
         $dbSymbolsKucoin = Symbol::select(['id', 'symbol'])->where('exchanger', 'kucoin')->get()->pluck('id', 'symbol');
-
+        $now = now();
         $insertData = [];
         foreach ($kucoin->fetchTickers() as  $ticker) {
 
@@ -51,10 +51,11 @@ class getDayMaxKucoin extends Command
                 'max_last' => $ticker['high'],
                 'max_cnt' => 0,
                 'volume_24h' => $ticker['baseVolume'],
+                'max_update_time' => $now,
             ];
         }
 
-        Ticker::upsert($insertData, ['symbol_id'], ['max_last24', 'max_last', 'max_cnt']);
+        Ticker::upsert($insertData, ['symbol_id'], ['max_last24', 'max_last', 'max_cnt', 'volume_24h', 'max_update_time']);
 
 
         return Command::SUCCESS;

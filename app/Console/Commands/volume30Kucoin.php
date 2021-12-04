@@ -4,8 +4,10 @@ namespace App\Console\Commands;
 
 use App\Models\Symbol;
 use App\Models\Ticker;
+use App\Models\CoinVolume;
 use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
+use GuzzleHttp\Exception\ClientException;
 
 
 class volume30Kucoin extends Command
@@ -23,7 +25,7 @@ class volume30Kucoin extends Command
      * @var string
      */
     protected $description = 'Command description';
-
+    protected $shouldUpdateArr = [];
     /**
      * Create a new command instance.
      *
@@ -49,7 +51,7 @@ class volume30Kucoin extends Command
 
         $timestamp = $kucoin->seconds();
         $now = Carbon::createFromTimestamp($timestamp)->timestamp;
-        $nowSub24 = Carbon::createFromTimestamp($timestamp)->subMonth(1)->timestamp;
+        $nowSub24 = Carbon::createFromTimestamp($timestamp)->subDays(30)->timestamp;
 
 
         //https: //kucoin.com/api/v1/market/candles?type=1min&symbol=BTC-USDT&startAt=1566703297&endAt=1566789757
@@ -59,7 +61,7 @@ class volume30Kucoin extends Command
             $response = $client->request('GET', $url, [
                 'query' => [
                     'symbol' => $symbol,
-                    'type' => '1day',
+                    'type' => '1week',
                     'startAt' => $nowSub24,
                     'endAt' =>   $now
                 ],
@@ -68,12 +70,13 @@ class volume30Kucoin extends Command
                 ],
             ]);
         } catch (ClientException $e) {
-            return null;
+            dump($e->getMessage());
+            return 0;
         }
 
         $candles = json_decode($response->getBody()->getContents());
         if (!$candles) {
-            return null;
+            return 0;
         }
 
         $volSum = 0;
@@ -81,7 +84,7 @@ class volume30Kucoin extends Command
             $volSum += $candle[5];
         }
 
-        return $volSum / 24;
+        return $volSum;
     }
 
 
@@ -104,21 +107,52 @@ class volume30Kucoin extends Command
 
         foreach ($tickers as  $ticker) {
 
-            if ($ticker->volume_30d > 0) {
-                dump($ticker->volume_30d / $ticker->volume_24h);
+            $volume = CoinVolume::firstOrNew(['ticker_id' =>  $ticker->id]);
+
+            if ($volume->exists) {
+                $this->shouldUpdateArr[] = $ticker;
+                continue;
             }
 
-
-            // $symbol = $ticker->symbol->symbol;
-
-            // $volume_30d = $this->getVolume30($kucoin, $symbol, now()->timestamp);
-            // dump($volume_30d);
-
+            $volume_30d = $this->updateVolume($kucoin, $ticker);
+            $volume->volume_30d = $volume_30d;
+            $volume->save();
+            dump($volume_30d);
             // $ticker->volume_30d = $volume_30d;
-            // $ticker->save();
-            // sleep(15);
+            //$ticker->save();
+
+            sleep(1);
         }
 
+
+        foreach ($this->shouldUpdateArr as $ticker) {
+            $volume_30d = $this->updateVolume($kucoin, $ticker);
+
+            $volume = CoinVolume::firstOrNew(['ticker_id' =>  $ticker->id]);
+            $volume->volume_30d = $volume_30d;
+            $volume->save();
+
+            sleep(20);
+        }
+
+
+
         return Command::SUCCESS;
+    }
+
+    public function updateVolume($kucoin, $ticker)
+    {
+        $symbol = $ticker->symbol->symbol;
+
+        $volume_30d = $this->getVolume30($kucoin, $symbol, now()->timestamp);
+        if ($volume_30d == 0) {
+            while ($volume_30d == 0) {
+                $volume_30d = $this->getVolume30($kucoin, $symbol, now()->timestamp);
+                dump('sleep 300');
+                sleep(300);
+            }
+        }
+
+        return $volume_30d;
     }
 }

@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
 
 const headCells = [
   {
-    id: "updated_at",
+    id: "max_update_time",
     sortable: false,
     label: "TIME OF UPDATE",
   },
@@ -79,6 +79,17 @@ const headCells = [
     sortable: false,
     label: "% OF INCREASE",
   },
+  
+  {
+    id: "volume_24h",
+    sortable: false,
+    label: "Volume ($)",
+  },
+  {
+    id: "volumePercent",
+    sortable: false,
+    label: "Volume Jump",
+  }
   
   
   
@@ -187,7 +198,10 @@ const Users = () => {
     })
   }
 
-  
+  function labelDisplayedRows({ from, to, count }) { 
+    return `count ${count !== -1 ? count : `more than ${to}`}`; 
+  }
+
   return (
     <AdminLayout title="Satistics">
       <Box sx={{ width: "100%" }}>
@@ -210,7 +224,7 @@ const Users = () => {
                   //let symbol = row.symbol
                   return (
                     <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                      <TableCell > {moment.unix(row.updated_at).format('DD-MM-YYYY hh:mm:ss') }</TableCell>
+                      <TableCell > {moment.unix(row.max_update_time).format('YYYY-MM-DD hh:mm:ss') }</TableCell>
                       <TableCell className={classes.full_name}> {row.full_name}</TableCell>
                       
                       <TableCell> {row.base}/{row.quote}</TableCell> 
@@ -221,7 +235,9 @@ const Users = () => {
 
                       <TableCell >{row.max_last.toFixed(6)}</TableCell>
                       <TableCell >{row.percent}</TableCell>
-                      
+                      <TableCell >{row.volume_24h}</TableCell>
+                      <TableCell >{row.volumePercent}</TableCell>
+                       
                       {/* <TableCell className={classes.actionButton}>
                       </TableCell> */}
                     </TableRow>
@@ -231,6 +247,8 @@ const Users = () => {
             </Table>
           </TableContainer>
           <TablePagination
+          backIconButtonProps={{'disabled':true}}
+          labelDisplayedRows={labelDisplayedRows}
             rowsPerPageOptions={[]}
             component="div"
             count={total}

@@ -36,7 +36,7 @@ export const tickersSlice = createSlice({
         }
 
         // @ts-ignore
-        newTickers.sort((a, b) => (a.updated_at < b.updated_at) ? 1 : -1)
+        newTickers.sort((a, b) => (a.max_update_time < b.max_update_time) ? 1 : -1)
         // @ts-ignore
         state.allTickers = newTickers
 
@@ -67,7 +67,7 @@ export const tickersSlice = createSlice({
       }
 
       // @ts-ignore
-      newTickers.sort((a, b) => (a.updated_at < b.updated_at) ? 1 : -1)
+      newTickers.sort((a, b) => (a.max_update_time < b.max_update_time) ? 1 : -1)
       // @ts-ignore
       state.allTickers = newTickers
 
