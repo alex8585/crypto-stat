@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\Models\Symbol;
 use App\Models\Ticker;
 use Illuminate\Console\Command;
@@ -30,12 +31,12 @@ class getDayMaxKucoin extends Command
         parent::__construct();
     }
 
+
     public function handle()
     {
 
         $kucoin = new \ccxt\kucoin();
         $dbSymbolsKucoin = Symbol::select(['id', 'symbol'])->where('exchanger', 'kucoin')->get()->pluck('id', 'symbol');
-
 
         $insertData = [];
         foreach ($kucoin->fetchTickers() as  $ticker) {
@@ -43,14 +44,13 @@ class getDayMaxKucoin extends Command
             $symbol =  $ticker['info']['symbol'];
 
             if (!isset($dbSymbolsKucoin[$symbol])) continue;
+
             $insertData[] = [
                 'symbol_id' => $dbSymbolsKucoin[$symbol],
                 'max_last24' => $ticker['high'],
                 'max_last' => $ticker['high'],
                 'max_cnt' => 0,
-                'volume_24h' => 0,
-                'volume_30d' => 0,
-                //'vol_curent' => $ticker['baseVolume']
+                'volume_24h' => $ticker['baseVolume'],
             ];
         }
 

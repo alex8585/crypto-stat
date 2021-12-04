@@ -84,7 +84,7 @@ class kucoinUpdateHandler extends Command
                     $ticker = $this->tickersArray[$symbolStr];
                     $price = $message['data']['price'];
 
-
+                    dd($message);
                     if ($price > $ticker->max_last) {
                         //dump($symbolStr);
                         //dump($ticker->max_last);
