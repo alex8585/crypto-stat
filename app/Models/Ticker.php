@@ -48,6 +48,9 @@ class Ticker extends Model
 
     public function getVolumePercentAttribute()
     {
+        if (!isset($this->volume)) {
+            return 0;
+        }
 
         if (!$this->volume_24h || !$this->volume->volume_30d) {
             return 0;

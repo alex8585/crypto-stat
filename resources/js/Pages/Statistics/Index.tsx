@@ -109,7 +109,7 @@ const Users = () => {
   const tickers = useSelector((state: RootState) => state.tickers.allTickers)
   const dispatch = useDispatch()
 
-  console.log(tickers)
+  //console.log(tickers)
 
   const initialItemsQuery = {
     page: 1,

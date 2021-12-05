@@ -48,7 +48,7 @@ class StatisticsController extends Controller
             'symbols.full_name',
         ])->join('symbols', function ($q) {
             $q->on('symbols.id', '=', 'tickers.symbol_id');
-        })->join('coin_volumes', function ($q) {
+        })->leftJoin('coin_volumes', function ($q) {
             $q->on('tickers.id', '=', 'coin_volumes.ticker_id');
         })->paginate($perPage)->withQueryString();
 

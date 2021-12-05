@@ -53,13 +53,7 @@ class volume30Kucoin extends Command
     public function getVolume30($kucoin, $symbol)
     {
 
-        $client = new \GuzzleHttp\Client(
-            [
-                'timeout' => 10.0,
-                'cookie' => true,
-                'proxy' => '66.23.232.82:3128',
-            ]
-        );
+        $client = new \GuzzleHttp\Client();
 
         $timestamp = $kucoin->seconds();
         $now = Carbon::createFromTimestamp($timestamp)->timestamp;
@@ -139,9 +133,9 @@ class volume30Kucoin extends Command
             //sleep(1);
 
             $cnt++;
-            if ($cnt % 7 == 0) {
-                dump('2');
-                sleep(2);
+            if ($cnt % 8 == 0) {
+                dump('10');
+                sleep(10);
             }
         }
 
@@ -155,8 +149,8 @@ class volume30Kucoin extends Command
             dump($volume_30d);
             $cnt++;
             if ($cnt % 8 == 0) {
-                dump('120');
-                sleep(120);
+                dump('10');
+                sleep(10);
             }
         }
 
@@ -174,8 +168,8 @@ class volume30Kucoin extends Command
         if ($volume_30d == 0) {
             while ($volume_30d == 0) {
                 $volume_30d = $this->getVolume30($kucoin, $symbol, now()->timestamp);
-                dump('sleep 300');
-                sleep(300);
+                dump('sleep 10');
+                sleep(10);
             }
         }
 
