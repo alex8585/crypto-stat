@@ -49,10 +49,10 @@ class Ticker extends Model
     public function getVolumePercentAttribute()
     {
 
-        if (!$this->volume_24h || !$this->volume_30d) {
+        if (!$this->volume_24h || !$this->volume->volume_30d) {
             return 0;
         }
 
-        return round($this->calcPercents($this->volume_24h, $this->volume_30d / 30), 2);
+        return round($this->calcPercents($this->volume_24h, $this->volume->volume_30d / 30), 2);
     }
 }

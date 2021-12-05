@@ -12,6 +12,8 @@ use GuzzleHttp\Exception\ClientException;
 
 class volume30Kucoin extends Command
 {
+
+
     /**
      * The name and signature of the console command.
      *
@@ -31,23 +33,33 @@ class volume30Kucoin extends Command
      *
      * @return void
      */
-    // public function getVolume30_old($kucoin, $symbol)
-    // {
-    //     $timestamp = $kucoin->seconds();
-    //     $now = Carbon::createFromTimestamp($timestamp)->timestamp;
-    //     $nowSub24 = Carbon::createFromTimestamp($timestamp)->subMonth(1)->timestamp;
+    public function getVolume30_old($kucoin, $symbol)
+    {
 
-    //     dd([$now, $nowSub24]);
+        $timestamp = $kucoin->seconds();
 
+        // $now = Carbon::createFromTimestamp($timestamp)->timestamp;
+        $nowSub24 = Carbon::createFromTimestamp($timestamp)->subMonth(1)->timestamp;
 
-    //     $data = $kucoin->fetch_ohlcv($symbol, '1d', $nowSub24, $now);
-    //     dd($data);
-    // }
+        $candles = $kucoin->fetch_ohlcv($symbol, '1w', $nowSub24 * 1000);
+        $volSum = 0;
+        foreach ($candles as $candle) {
+            $volSum += $candle[5];
+        }
+
+        return $volSum;
+    }
 
     public function getVolume30($kucoin, $symbol)
     {
 
-        $client = new \GuzzleHttp\Client();
+        $client = new \GuzzleHttp\Client(
+            [
+                'timeout' => 10.0,
+                'cookie' => true,
+                'proxy' => '66.23.232.82:3128',
+            ]
+        );
 
         $timestamp = $kucoin->seconds();
         $now = Carbon::createFromTimestamp($timestamp)->timestamp;
@@ -100,11 +112,14 @@ class volume30Kucoin extends Command
      */
     public function handle()
     {
+
         $kucoin = new \ccxt\kucoin();
+
+
         $tickers = Ticker::whereHas('symbol', function ($query) {
             $query->where('exchanger', 'kucoin');
         })->with('symbol')->get();
-
+        $cnt = 0;
         foreach ($tickers as  $ticker) {
 
             $volume = CoinVolume::firstOrNew(['ticker_id' =>  $ticker->id]);
@@ -121,18 +136,28 @@ class volume30Kucoin extends Command
             // $ticker->volume_30d = $volume_30d;
             //$ticker->save();
 
-            sleep(1);
+            //sleep(1);
+
+            $cnt++;
+            if ($cnt % 7 == 0) {
+                dump('2');
+                sleep(2);
+            }
         }
 
-
+        $cnt = 0;
         foreach ($this->shouldUpdateArr as $ticker) {
             $volume_30d = $this->updateVolume($kucoin, $ticker);
 
             $volume = CoinVolume::firstOrNew(['ticker_id' =>  $ticker->id]);
             $volume->volume_30d = $volume_30d;
             $volume->save();
-
-            sleep(20);
+            dump($volume_30d);
+            $cnt++;
+            if ($cnt % 8 == 0) {
+                dump('120');
+                sleep(120);
+            }
         }
 
 
@@ -145,6 +170,7 @@ class volume30Kucoin extends Command
         $symbol = $ticker->symbol->symbol;
 
         $volume_30d = $this->getVolume30($kucoin, $symbol, now()->timestamp);
+
         if ($volume_30d == 0) {
             while ($volume_30d == 0) {
                 $volume_30d = $this->getVolume30($kucoin, $symbol, now()->timestamp);

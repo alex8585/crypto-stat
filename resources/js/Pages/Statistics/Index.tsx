@@ -83,12 +83,12 @@ const headCells = [
   {
     id: "volume_24h",
     sortable: false,
-    label: "Volume ($)",
+    label: "VOLUME ($)",
   },
   {
     id: "volumePercent",
     sortable: false,
-    label: "Volume Jump",
+    label: "VOLUME JUMP",
   }
   
   

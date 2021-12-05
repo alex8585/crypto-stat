@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Symbol;
+use App\Models\CoinNames;
 use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Artisan;
@@ -112,7 +113,29 @@ class getSymbols extends Command
     }
 
 
+    public function setCoinNamesNames()
+    {
+        $namesArr = CoinNames::get()->pluck('name', 'sumbol');
+        $symbols = Symbol::select(['id', 'base', 'base2'])->get();
+        $name = '';
+        $base = '';
+        foreach ($symbols as $symbol) {
+            if (isset($namesArr[$symbol->base])) {
+                $base = $symbol->base;
+                $name =   $namesArr[$base];
+            } else if (isset($namesArr[$symbol->base2])) {
+                $base = $symbol->base2;
+                $name =  $namesArr[$base];
+            }
 
+            if ($name) {
+                $symbol['full_name'] = $name;
+                $symbol->save();
+            } else {
+                $symbol->delete();
+            }
+        }
+    }
 
     public function handle()
     {
@@ -120,6 +143,9 @@ class getSymbols extends Command
         $this->getKucoin();
         $this->getCoinbase();
         Artisan::call('get_sumbols_names');
+
+        $this->setCoinNamesNames();
+
         return Command::SUCCESS;
     }
 }

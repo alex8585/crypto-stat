@@ -3,8 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\Symbol;
-use Illuminate\Console\Command;
+use App\Models\CoinNames;
 
+use Illuminate\Console\Command;
 use Codenixsv\CoinGeckoApi\CoinGeckoClient;
 
 
@@ -34,7 +35,7 @@ class getSumbolsNames extends Command
         parent::__construct();
     }
 
-    public function getCoinlist()
+    public function getCoinlistCoins()
     {
 
         $client = new \GuzzleHttp\Client();
@@ -69,7 +70,8 @@ class getSumbolsNames extends Command
      *
      * @return int
      */
-    public function handle()
+
+    public function getCoinGeckoCoins()
     {
         $client = new CoinGeckoClient();
         $coins = $client->coins()->getList();
@@ -81,29 +83,52 @@ class getSumbolsNames extends Command
             $symbol = strtoupper($coin['symbol']);
             $coinsNames[$symbol] = $name;
         }
+        return $coinsNames;
+    }
 
 
-        $coinsNames2 = $this->getCoinlist();
-
-
-        $symbols = Symbol::select(['id', 'base', 'base2'])->get();
+    public function insertNewCoinNames($symbols, $coinsNames, $provider)
+    {
         foreach ($symbols as $symbol) {
+            $name = '';
+            $base = '';
             if (isset($coinsNames[$symbol->base])) {
-                $symbol['full_name'] = $coinsNames[$symbol->base];
-                $symbol->save();
+                $base = $symbol->base;
+                $name =   $coinsNames[$base];
             } else if (isset($coinsNames[$symbol->base2])) {
-                $symbol['full_name'] = $coinsNames[$symbol->base2];
-                $symbol->save();
-            } else if ((isset($coinsNames2[$symbol->base]))) {
-                $symbol['full_name'] = $coinsNames2[$symbol->base];
-                $symbol->save();
-            } else if (isset($coinsNames2[$symbol->base2])) {
-                $symbol['full_name'] = $coinsNames2[$symbol->base2];
-                $symbol->save();
-            } else {
-                $symbol->delete();
+                $base = $symbol->base2;
+                $name =  $coinsNames[$base];
+            }
+            if ($name) {
+                $coinName = CoinNames::firstOrNew(['sumbol' =>  $base]);
+                if (!$coinName->exists) {
+                    $coinName->provider = $provider;
+                    $coinName->name = $name;
+                    $coinName->sumbol =  $base;
+                    $coinName->save();
+                }
             }
         }
+    }
+
+
+
+
+
+    public function handle()
+    {
+
+        $symbols = Symbol::select(['id', 'base', 'base2'])->get();
+
+
+        $coinGeckoCoins = $this->getCoinGeckoCoins();
+
+        $this->insertNewCoinNames($symbols, $coinGeckoCoins, 'coingecko');
+
+        $coinlistCoins = $this->getCoinlistCoins();
+
+        $this->insertNewCoinNames($symbols, $coinlistCoins, 'coinlist');
+
 
 
         return Command::SUCCESS;
