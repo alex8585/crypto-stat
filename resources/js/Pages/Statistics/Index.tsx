@@ -242,7 +242,7 @@ const Users = () => {
 
                       <TableCell >{row.max_last.toFixed(6)}</TableCell>
                       <TableCell >{row.percent}</TableCell>
-                      <TableCell >{row.volume_24h}</TableCell>
+                      <TableCell >{row.volumeQuote24}</TableCell>
                       <TableCell >{row.volumePercent}</TableCell>
                        
                       {/* <TableCell className={classes.actionButton}>

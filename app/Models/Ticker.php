@@ -22,8 +22,8 @@ class Ticker extends Model
 
     protected $appends = [
         'percent',
-        'volumePercent'
-
+        'volumePercent',
+        'volumeQuote24'
     ];
 
     public function volume()
@@ -64,5 +64,43 @@ class Ticker extends Model
         }
 
         return round($this->calcPercents($this->volume_24h, $vol_30 / 30), 2);
+    }
+
+    public function getVolumeQuote24Attribute()
+    {
+        $exchanger = '';
+        if ($this->relationLoaded('symbol')) {
+            $exchanger =  $this->symbol->exchanger;
+        } else {
+            $exchanger =  $this->exchanger;
+        }
+
+
+
+
+
+        $val = 0;
+        if ($exchanger == 'coinbase') {
+            $val =  $this->volume_24h * $this->max_last;
+            //return $this->volume_24h * $this->max_last;
+        } else {
+            $val = $this->quote_volume_24h;
+        }
+
+
+
+
+
+        // $fmt = numfmt_create('en_US', \NumberFormatter::CURRENCY);
+        // return numfmt_format_currency($fmt, $val, "USD") . "\n";
+
+        $fmt = new \NumberFormatter('en_US', \NumberFormatter::CURRENCY);
+        $fmt->setSymbol(\NumberFormatter::CURRENCY_SYMBOL, '');
+        $fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, 0);
+
+
+
+
+        return $fmt->formatCurrency($val, 'USD');
     }
 }

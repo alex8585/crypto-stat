@@ -41,6 +41,7 @@ class StatisticsController extends Controller
             'tickers.max_update_time',
             'tickers.max_cnt',
             'tickers.volume_24h',
+            'tickers.quote_volume_24h',
             'coin_volumes.volume_30d',
             'symbols.base',
             'symbols.quote',

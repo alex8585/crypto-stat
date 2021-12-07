@@ -45,6 +45,9 @@ class getDayMaxKucoin extends Command
 
             if (!isset($dbSymbolsKucoin[$symbol])) continue;
 
+            // if ($ticker['symbol'] == 'BTC/USDT') {
+            //     dd($ticker);
+            // }
             $insertData[] = [
                 'symbol_id' => $dbSymbolsKucoin[$symbol],
                 'max_last24' => $ticker['high'],
@@ -52,10 +55,11 @@ class getDayMaxKucoin extends Command
                 'max_cnt' => 0,
                 'volume_24h' => $ticker['baseVolume'],
                 'max_update_time' => $now,
+                'quote_volume_24h' => $ticker['quoteVolume'],
             ];
         }
 
-        Ticker::upsert($insertData, ['symbol_id'], ['max_last24', 'max_last', 'max_cnt', 'volume_24h', 'max_update_time']);
+        Ticker::upsert($insertData, ['symbol_id'], ['max_last24', 'max_last', 'max_cnt', 'volume_24h', 'max_update_time', 'quote_volume_24h']);
 
 
         return Command::SUCCESS;

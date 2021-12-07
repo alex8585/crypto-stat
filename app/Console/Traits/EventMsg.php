@@ -19,6 +19,7 @@ trait EventMsg
             'percent' => $ticker['percent'],
             'volumePercent' => (float)$ticker['volumePercent'],
             'volume_24h' => $ticker['volume_24h'],
+            'volumeQuote24' => $ticker['volumeQuote24'],
             'volume_30d' => isset($ticker['volume']['volume_30d']) ? $ticker['volume']['volume_30d'] : 0,
             'base' => $ticker['symbol']['base'],
             'quote' => $ticker['symbol']['quote'],
