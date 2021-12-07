@@ -94,13 +94,11 @@ class Ticker extends Model
         // $fmt = numfmt_create('en_US', \NumberFormatter::CURRENCY);
         // return numfmt_format_currency($fmt, $val, "USD") . "\n";
 
-        $fmt = new \NumberFormatter('en_US', \NumberFormatter::CURRENCY);
-        $fmt->setSymbol(\NumberFormatter::CURRENCY_SYMBOL, '');
-        $fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, 0);
+        // $fmt = new \NumberFormatter('en_US', \NumberFormatter::CURRENCY);
+        // $fmt->setSymbol(\NumberFormatter::CURRENCY_SYMBOL, '');
+        // $fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, 0);
+        //return $fmt->formatCurrency($val, 'USD');
 
-
-
-
-        return $fmt->formatCurrency($val, 'USD');
+        return number_format($val, 0, '.', ',');
     }
 }

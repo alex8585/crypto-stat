@@ -92,6 +92,10 @@ class kucoinUpdateHandler extends Command
                         $ticker->max_cnt = $ticker->max_cnt + 1;
                         $ticker->max_update_time = now();
                         $ticker->load('volume');
+
+                        $updatedTicker = Ticker::select(['volume_24h'])->where('id', $ticker->id)->first();
+                        $ticker->volume_24h = $updatedTicker->volume_24h;
+
                         broadcast(new TickerUpdateEvent($this->tickerToEventMsg($ticker)));
                         $ticker->save();
                         $this->tickersArray[$symbolStr] = $ticker;

@@ -86,9 +86,6 @@ class coinbaseUpdateHandler extends Command
                     $isUpdated = false;
 
 
-                    // if ($productId == 'ETH-USD') {
-                    //     dd($message);
-                    // }
                     if ($ticker->max_last24 == 0) {
 
                         $ticker->max_last24 =  $message->getHigh24h();
@@ -118,7 +115,6 @@ class coinbaseUpdateHandler extends Command
                     if ($isUpdated) {
 
                         $ticker->volume_24h = $message->getVolume24h();
-                        //$ticker->quote_volume_24h = $message->getVolumeQuote24h();
                         if (!$ticker->max_last24) {
                             $ticker->max_last24 =  $message->getHigh24h();
                         }

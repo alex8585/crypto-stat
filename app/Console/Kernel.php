@@ -15,8 +15,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('get_day_max_coinbase')->runInBackground()->cron('00 09 * * *');
-        $schedule->command('get_day_max_kucoin')->runInBackground()->cron('00 09 * * *');
+        $schedule->command('get_day_max_coinbase')->runInBackground()->cron('00 08 * * *');
+        $schedule->command('get_day_max_kucoin')->runInBackground()->cron('00 08 * * *');
+        $schedule->command('volume_24h_kucoin')->runInBackground()->cron('*/10 * * * *');
     }
 
     /**
