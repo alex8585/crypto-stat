@@ -7,8 +7,8 @@ trait EventMsg
     public function tickerToEventMsg($ticker)
     {
         //dd($ticker);
-        $ticker->toArray();
-
+        //$ticker->toArray();
+        //dump($ticker);
         return [
             'id' => $ticker['id'],
             'symbol_id' => $ticker['symbol_id'],
@@ -19,7 +19,7 @@ trait EventMsg
             'percent' => $ticker['percent'],
             'volumePercent' => (float)$ticker['volumePercent'],
             'volume_24h' => $ticker['volume_24h'],
-            //'volume_30d' => isset($ticker['volume']['volume_30d']) ? $ticker['volume']['volume_30d'] : 0,
+            'volume_30d' => isset($ticker['volume']['volume_30d']) ? $ticker['volume']['volume_30d'] : 0,
             'base' => $ticker['symbol']['base'],
             'quote' => $ticker['symbol']['quote'],
             'exchanger' => $ticker['symbol']['exchanger'],

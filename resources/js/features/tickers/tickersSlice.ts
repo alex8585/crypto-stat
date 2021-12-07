@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 export interface TickersState {
   value: number
-  allTickers: []
+  allTickers: TickerArray
 }
 
 const initialState: TickersState = {
@@ -15,15 +15,15 @@ export const tickersSlice = createSlice({
   initialState,
   reducers: {
     pushTickers: (state, action: PayloadAction<any>) => {
-      let newTickers = [
+      let newTickers: TickerArray = [
         ...state.allTickers
       ]
 
-      action.payload.tickers.forEach((elem: any, index: number) => {
+      action.payload.tickers.forEach((elem: TickerType, index: number) => {
 
-        let isFound = newTickers.find((o: any, i) => {
+        let isFound = newTickers.find((o: TickerType, i) => {
           if (o.id === elem.id) {
-            // @ts-ignore
+
             newTickers[i] = elem;
             return true;
           }
@@ -31,19 +31,19 @@ export const tickersSlice = createSlice({
         });
 
         if (!isFound) {
-          // @ts-ignore
+
           newTickers.push(elem);
         }
 
-        // @ts-ignore
+
         newTickers.sort((a, b) => (a.max_update_time < b.max_update_time) ? 1 : -1)
-        // @ts-ignore
+
         state.allTickers = newTickers
 
       })
     },
 
-    pushTicker: (state, action: PayloadAction<any>) => {
+    pushTicker: (state, action: PayloadAction<TickerType>) => {
       let ticker = action.payload
 
       let newTickers = [
@@ -52,23 +52,23 @@ export const tickersSlice = createSlice({
 
 
       let isFound = newTickers.find((o, i) => {
-        // @ts-ignore
+
         if (o.id === ticker.id) {
           //console.log(ticker.max_last)
-          // @ts-ignore
+
           newTickers[i] = ticker;
           return true;
         }
       });
 
       if (!isFound) {
-        // @ts-ignore
+
         newTickers.push(ticker);
       }
 
-      // @ts-ignore
+
       newTickers.sort((a, b) => (a.max_update_time < b.max_update_time) ? 1 : -1)
-      // @ts-ignore
+
       state.allTickers = newTickers
 
 

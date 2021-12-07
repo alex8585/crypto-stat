@@ -109,7 +109,7 @@ const Users = () => {
   const tickers = useSelector((state: RootState) => state.tickers.allTickers)
   const dispatch = useDispatch()
 
-  //console.log(tickers)
+  console.log(tickers)
 
   const initialItemsQuery = {
     page: 1,
@@ -122,17 +122,19 @@ const Users = () => {
 
   let { page, perPage, direction, sort } = itemsQuery
   const firstUpdate = useRef(true);
-// @ts-ignore
-  useEffect(async () =>  {
+
+  useEffect(() =>  {
     if (firstUpdate.current) {
       firstUpdate.current = false;
       return;
     }
    
-    let tickers = await getTickers(itemsQuery.page)
-    dispatch(pushTickers({tickers,page}))
-
-
+    
+    (async () => {
+      let tickers = await getTickers(itemsQuery.page)
+      dispatch(pushTickers({tickers,page}))
+    })();
+    
 
   }, [itemsQuery])
 
@@ -150,9 +152,14 @@ const Users = () => {
      //key: process.env.MIX_PUSHER_KEY,
      // app_id: process.env.MIX_PUSHER_APP_ID,
      //
-    let host = process.env.MIX_PUSHER_HOST
-    
+    let host = process.env.MIX_PUSHER_HOST_PROD
+    if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+       host = process.env.MIX_PUSHER_HOST_DEV
+    } 
+
+
     console.log(host)
+    //console.log(t)
     let echo = new Echo({
       broadcaster: "socket.io",
       withCredentials:false,

@@ -6,6 +6,25 @@ interface TagInterface {
     created_at?: string
 }
 
+interface TickerType {
+    base?: string,
+    exchanger?: string,
+    full_name?: string,
+    id?: number,
+    max_cnt?: number,
+    max_last?: number,
+    max_last24?: number,
+    max_update_time?: number,
+    percent?: number,
+    quote?: string,
+    symbol_id?: number,
+    volumePercent?: number,
+    volume_24h?: number,
+    volume_30d?: number,
+}
+type TickerArray = Array<TickerType>
+
+
 type ActivitiesKeysType = | 'inner' | 'url' | 'referrer';
 interface ActivityType {
     page?: string,
